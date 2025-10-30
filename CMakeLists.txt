@@ -1,0 +1,24 @@
+cmake_minimum_required(VERSION 3.27)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+project(KaosPolosApp)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+find_package(Qt6 COMPONENTS Core Widgets Sql)
+
+add_executable(KaosPolos src/main.cpp
+                         src/database.cpp
+                         src/include/database.h
+                         src/res/main_res.qrc
+                            )
+
+target_include_directories(KaosPolos PRIVATE src/include
+                                             src/ui)
+target_link_libraries(KaosPolos PRIVATE Qt6::Widgets Qt6::Sql)
+
+add_subdirectory(qttest)
