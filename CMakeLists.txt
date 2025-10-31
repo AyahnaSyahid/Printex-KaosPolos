@@ -16,6 +16,9 @@ add_executable(KaosPolos src/main.cpp
                          src/database.cpp
                          src/include/database.h
                          src/res/main_res.qrc
+                         src/ui/addproduk.ui
+                         src/include/addproduk.h
+                         src/addproduk.cpp
                             )
 
 target_include_directories(KaosPolos PRIVATE src/include
