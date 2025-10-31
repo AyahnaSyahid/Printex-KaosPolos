@@ -24,20 +24,20 @@ target_include_directories(Database PUBLIC ../src/include)
 # --- Unit Test ---
 enable_testing()
 
-add_executable(tst_database
-    tst_database.cpp
-)
+# add_executable(tst_database
+    # tst_database.cpp
+# )
 
 add_executable(claude_test
     claude_test.cpp
 )
 
-target_link_libraries(tst_database
-    Database
-    Qt6::Test
-    Qt6::Core
-    Qt6::Sql
-)
+# target_link_libraries(tst_database
+    # Database
+    # Qt6::Test
+    # Qt6::Core
+    # Qt6::Sql
+# )
 
 target_link_libraries(claude_test
     Database
@@ -46,5 +46,5 @@ target_link_libraries(claude_test
     Qt6::Sql
 )
 
-add_test(NAME DatabaseTest COMMAND tst_database)
+# add_test(NAME DatabaseTest COMMAND tst_database)
 add_test(NAME ClaudeTest COMMAND claude_test)

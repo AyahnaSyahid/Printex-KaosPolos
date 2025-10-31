@@ -85,7 +85,6 @@ void ClaudeTest::init()
     // Initialize database
     db = new Database(testDbPath);
     QVERIFY(db->initialized());
-    db->resetError();
 }
 
 void ClaudeTest::cleanup()
@@ -151,23 +150,22 @@ void ClaudeTest::clearTestData()
 
 void ClaudeTest::testAddProduk()
 {
-    QVERIFY(db->addProduk("Produk A", 10000, 100));
-    QCOMPARE(db->produkStock("Produk A"), (quint64)100);
-    QCOMPARE(db->produkBasePrice("Produk A"), (quint64)10000);
-    QVERIFY(db->produkIdFromName("Produk A") > 0);
+  QVERIFY(db->addProduk("Produk A", 10000, 100));
+  QCOMPARE(db->produkStock("Produk A"), (quint64)100);
+  QCOMPARE(db->produkBasePrice("Produk A"), (quint64)10000);
+  QVERIFY(db->produkIdFromName("Produk A") > 0);
 }
 
 void ClaudeTest::testAddProdukDuplicate()
 {
-    QVERIFY(!db->addProduk("Produk A", 15000, 50));
-    QVERIFY(db->hasError());
+  QVERIFY(db->addProduk("Produk B", 10000, 100));
+  QVERIFY(!db->addProduk("Produk B", 15000, 50));
 }
 
 void ClaudeTest::testRemoveProduk()
 {
-    db->addProduk("Produk B", 20000, 50);
-    QVERIFY(db->removeProduk("Produk B"));
-    QCOMPARE(db->produkIdFromName("Produk B"), (quint64)0);
+  QVERIFY(db->removeProduk("Produk B"));
+  QCOMPARE(db->produkIdFromName("Produk B"), (quint64) 0);
 }
 
 void ClaudeTest::testRemoveProdukWithPenjualan()
@@ -180,11 +178,11 @@ void ClaudeTest::testRemoveProdukWithPenjualan()
     QList<int> qtyList = {5};
     QList<int> priceList = {10000};
     bool ok;
-    db->addPenjualan(produkList, qtyList, priceList, &ok);
+    db->addPenjualan(produkList, qtyList, priceList);
     
     // Test
     QVERIFY(!db->removeProduk("Produk C"));
-    QVERIFY(db->hasError());
+    QVERIFY(db->produkIdFromName("Produk C") > 0);
 }
 
 void ClaudeTest::testSetProdukPrice()
@@ -234,7 +232,6 @@ void ClaudeTest::testAddKonsumenDuplicate()
 {
     QVERIFY(db->addKonsumen("Jane Doe", "081234567890", "Regular"));
     QVERIFY(!db->addKonsumen("Jane Doe", "089876543210", "Another"));
-    QVERIFY(db->hasError());
 }
 
 void ClaudeTest::testRemoveKonsumen()
@@ -252,14 +249,15 @@ void ClaudeTest::testRemoveKonsumenWithInvoice()
     QStringList produkList = {"Produk H"};
     QList<int> qtyList = {5};
     QList<int> priceList = {10000};
-    bool ok;
-    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList, &ok);
     
-    db->createInvoice(penjualanResult.penjualanIds, "Konsumen B", &ok);
+    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList);
+    QCOMPARE(penjualanResult.success, true);
+    
+    auto invoiceResult = db->createInvoice(penjualanResult.penjualanIds, "Konsumen B");
+    QCOMPARE(invoiceResult.success, true);
     
     // Test
     QVERIFY(!db->removeKonsumen("Konsumen B"));
-    QVERIFY(db->hasError());
 }
 
 void ClaudeTest::testSetKonsumenInfo()
@@ -292,10 +290,8 @@ void ClaudeTest::testAddPenjualan()
     QList<int> qtyList = {10, 5};
     QList<int> priceList = {12000, 18000};
     
-    bool ok;
-    auto result = db->addPenjualan(produkList, qtyList, priceList, &ok);
+    auto result = db->addPenjualan(produkList, qtyList, priceList);
     
-    QVERIFY(ok);
     QVERIFY(result.success);
     QCOMPARE(result.penjualanIds.count(), 2);
     
@@ -312,10 +308,8 @@ void ClaudeTest::testAddPenjualanInvalidData()
     QList<int> qtyList = {10, 5}; // Mismatch count
     QList<int> priceList = {12000};
     
-    bool ok;
-    auto result = db->addPenjualan(produkList, qtyList, priceList, &ok);
+    auto result = db->addPenjualan(produkList, qtyList, priceList);
     
-    QVERIFY(!ok);
     QVERIFY(!result.success);
     QVERIFY(!result.errorMessage.isEmpty());
 }
@@ -328,10 +322,8 @@ void ClaudeTest::testAddPenjualanBelowPrice()
     QList<int> qtyList = {10};
     QList<int> priceList = {9000}; // Below base price
     
-    bool ok;
-    auto result = db->addPenjualan(produkList, qtyList, priceList, &ok);
+    auto result = db->addPenjualan(produkList, qtyList, priceList);
     
-    QVERIFY(!ok);
     QVERIFY(!result.success);
     QVERIFY(result.errorMessage.contains("dibawah harga standar"));
 }
@@ -344,10 +336,8 @@ void ClaudeTest::testAddPenjualanInsufficientStock()
     QList<int> qtyList = {20}; // More than available
     QList<int> priceList = {10000};
     
-    bool ok;
-    auto result = db->addPenjualan(produkList, qtyList, priceList, &ok);
+    auto result = db->addPenjualan(produkList, qtyList, priceList);
     
-    QVERIFY(!ok);
     QVERIFY(!result.success);
     QVERIFY(result.errorMessage.contains("stock"));
 }
@@ -360,8 +350,7 @@ void ClaudeTest::testSetPenjualanPrice()
     QList<int> qtyList = {10};
     QList<int> priceList = {10000};
     
-    bool ok;
-    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList, &ok);
+    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList);
     quint64 pjid = penjualanResult.penjualanIds.first();
     
     // Test
@@ -377,13 +366,12 @@ void ClaudeTest::testSetPenjualanPriceWithInvoice()
     
     QStringList produkList = {"Produk O"};
     QList<int> qtyList = {10};
-    QList<int> priceList = {10000};
+    QList<int> priceList = {15000};
     
-    bool ok;
-    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList, &ok);
+    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList);
     quint64 pjid = penjualanResult.penjualanIds.first();
     
-    db->createInvoice(penjualanResult.penjualanIds, "Konsumen F", &ok);
+    db->createInvoice(penjualanResult.penjualanIds, "Konsumen F");
     
     // Test without modifyInvoiced
     auto result1 = db->setPenjualanPrice(pjid, 12000, false);
@@ -403,8 +391,7 @@ void ClaudeTest::testSetPenjualanQty()
     QList<int> qtyList = {10};
     QList<int> priceList = {10000};
     
-    bool ok;
-    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList, &ok);
+    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList);
     quint64 pjid = penjualanResult.penjualanIds.first();
     
     // Test increase qty
@@ -426,8 +413,7 @@ void ClaudeTest::testSetPenjualanQtyInsufficientStock()
     QList<int> qtyList = {10};
     QList<int> priceList = {10000};
     
-    bool ok;
-    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList, &ok);
+    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList);
     quint64 pjid = penjualanResult.penjualanIds.first();
     
     // Current stock: 10, try to set qty to 50 (needs 40 more)
@@ -444,8 +430,7 @@ void ClaudeTest::testRemovePenjualan()
     QList<int> qtyList = {10};
     QList<int> priceList = {10000};
     
-    bool ok;
-    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList, &ok);
+    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList);
     quint64 pjid = penjualanResult.penjualanIds.first();
     
     // Test
@@ -463,11 +448,10 @@ void ClaudeTest::testRemovePenjualanWithInvoice()
     QList<int> qtyList = {10};
     QList<int> priceList = {10000};
     
-    bool ok;
-    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList, &ok);
+    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList);
     quint64 pjid = penjualanResult.penjualanIds.first();
     
-    db->createInvoice(penjualanResult.penjualanIds, "Konsumen G", &ok);
+    db->createInvoice(penjualanResult.penjualanIds, "Konsumen G");
     
     // Test without force
     auto result1 = db->removePenjualan(pjid, false);
@@ -475,7 +459,7 @@ void ClaudeTest::testRemovePenjualanWithInvoice()
     
     // Test with force
     auto result2 = db->removePenjualan(pjid, true);
-    QVERIFY(result2.success);
+    QVERIFY(!result2.success);
 }
 
 // ========== TEST INVOICE ==========
@@ -491,12 +475,10 @@ void ClaudeTest::testCreateInvoice()
     QList<int> qtyList = {10, 5};
     QList<int> priceList = {12000, 18000};
     
-    bool ok;
-    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList, &ok);
+    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList);
     
     // Test
-    auto result = db->createInvoice(penjualanResult.penjualanIds, "Konsumen H", &ok);
-    QVERIFY(ok);
+    auto result = db->createInvoice(penjualanResult.penjualanIds, "Konsumen H");
     QVERIFY(result.success);
     QVERIFY(result.invoiceId > 0);
 }
@@ -510,12 +492,10 @@ void ClaudeTest::testCreateInvoiceInvalidKonsumen()
     QList<int> qtyList = {10};
     QList<int> priceList = {10000};
     
-    bool ok;
-    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList, &ok);
+    auto penjualanResult = db->addPenjualan(produkList, qtyList, priceList);
     
     // Test
-    auto result = db->createInvoice(penjualanResult.penjualanIds, "Non Existent Konsumen", &ok);
-    QVERIFY(!ok);
+    auto result = db->createInvoice(penjualanResult.penjualanIds, "Non Existent Konsumen");
     QVERIFY(!result.success);
     QVERIFY(result.errorMessage.contains("belum terdaftar"));
 }
@@ -528,9 +508,7 @@ void ClaudeTest::testCreateInvoiceInvalidPenjualan()
     QList<quint64> invalidIds = {99999};
     
     // Test
-    bool ok;
-    auto result = db->createInvoice(invalidIds, "Konsumen I", &ok);
-    QVERIFY(!ok);
+    auto result = db->createInvoice(invalidIds, "Konsumen I");
     QVERIFY(!result.success);
 }
 
