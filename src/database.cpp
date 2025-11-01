@@ -81,7 +81,8 @@ void Database::initializeDatabase() {
 }
 
 // CRUD PRODUK
-bool Database::addProduk(const QString &uniqueName, int price, int stock) {
+DatabaseResult Database::addProduk(const QString &uniqueName, int price, int stock) {
+  DatabaseResult res;
   QSqlQuery q;
   q.prepare("INSERT INTO Produk (nama, stock, base_price) VALUES (?, ?, ?)");
   q.addBindValue(uniqueName);
@@ -89,13 +90,15 @@ bool Database::addProduk(const QString &uniqueName, int price, int stock) {
   q.addBindValue(price);
   if(!q.exec()) {
     if(q.lastError().isValid()) {
-      qWarning() << q.lastError().text();
+      auto error = q.lastError();
+      res.errorMessage = error.text();
     } else {
-      qWarning() << "addProduk Failed;";
+      res.errorMessage = "addProduk Failed;";
     }
-    return false;
+    return res;
   }
-  return true;
+  res.success = true;
+  return res;
 }
 
 bool Database::removeProduk(const QString &uniqueName)

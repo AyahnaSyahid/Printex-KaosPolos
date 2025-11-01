@@ -25,6 +25,66 @@
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QDockWidget" name="navigationDock">
+   <property name="minimumSize">
+    <size>
+     <width>225</width>
+     <height>113</height>
+    </size>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFeature::NoDockWidgetFeatures</set>
+   </property>
+   <property name="windowTitle">
+    <string>Navigasi</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QTreeWidget" name="treeWidget">
+       <property name="font">
+        <font>
+         <family>Calisto MT</family>
+         <pointsize>11</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+       <column>
+        <property name="text">
+         <string>Navigasi</string>
+        </property>
+       </column>
+       <item>
+        <property name="text">
+         <string>Produk</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Tambah Produk</string>
+         </property>
+        </item>
+       </item>
+       <item>
+        <property name="text">
+         <string>Konsumen</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Tambah Konsumen</string>
+         </property>
+        </item>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
  </widget>
  <resources>
   <include location="../res/main_res.qrc"/>

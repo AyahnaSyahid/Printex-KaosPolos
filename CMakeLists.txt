@@ -16,14 +16,21 @@ add_executable(KaosPolos src/main.cpp
                          src/database.cpp
                          src/include/database.h
                          src/res/main_res.qrc
-                         src/ui/addproduk.ui
-                         src/include/addproduk.h
+                         src/kaospoloswindow.cpp
+                         src/include/kaospoloswindow.h
+                         src/ui/kaospoloswindow.ui
                          src/addproduk.cpp
-                            )
+                         src/include/addproduk.h
+                         src/ui/addproduk.ui
+                         src/dockproduk.cpp
+                         src/include/dockproduk.h
+                         src/produkmodel.cpp
+                         src/include/produkmodel.h
+                         )
 
 target_include_directories(KaosPolos PRIVATE src/include
                                              src/ui)
 target_link_libraries(KaosPolos PRIVATE Qt6::Widgets Qt6::Sql)
 
-add_subdirectory(qttest)
+# add_subdirectory(qttest)
 

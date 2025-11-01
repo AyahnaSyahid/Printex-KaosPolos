@@ -1,4 +1,6 @@
 // 2025-10-28
+#ifndef DATABASE_H
+#define DATABASE_H
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -51,7 +53,7 @@ class Database
     void initializeDatabase();
 
     // CRUD PRODUK
-    bool addProduk(const QString& uniqueName, int price, int stock=0);
+    DatabaseResult addProduk(const QString& uniqueName, int price, int stock=0);
     bool removeProduk(const QString& uniqueName);
     quint64 produkIdFromName(const QString& uniqueName) const;
     bool setProdukPrice(const QString& name, int price);
@@ -94,3 +96,5 @@ class Database
     QMap<QString, QSqlTableModel*> _tableModel;
     QString m_dataPath;
 };
+
+#endif
