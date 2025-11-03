@@ -2,8 +2,8 @@
 #define AddProduk_H
 
 #include <QDialog>
+#include <QSqlQueryModel>
 #include <QVariantMap>
-#include <QAbstractItemModel>
 
 namespace Ui {
 class AddProduk;
@@ -12,22 +12,22 @@ class AddProduk;
 class AddProduk : public QDialog {
   Q_OBJECT
 
-public:
-  explicit AddProduk(QAbstractItemModel *m, QWidget *parent=nullptr);
+ public:
+  explicit AddProduk(QWidget *parent = nullptr);
   ~AddProduk();
+  QString nama() const;
+  int initialStock() const;
+  int price() const;
 
-public slots:
-  void produkAdded(const QString&, bool ok, const QString&);
-
-private slots:
+ private slots:
   void on_saveButton_clicked();
 
-signals:
-  void addProduk(const QVariantMap&);
+ signals:
+  void inputFinished();
 
-private:
+ private:
   Ui::AddProduk *ui;
-  QAbstractItemModel *model;
+  QSqlQueryModel *model;
 };
 
-#endif // NewProductDialog_H
+#endif  // NewProductDialog_H

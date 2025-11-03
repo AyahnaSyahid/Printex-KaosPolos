@@ -4,18 +4,18 @@
 #include <QSortFilterProxyModel>
 #include <QSqlQueryModel>
 
-class ProdukModel : public QSortFilterProxyModel
-{
-  
-public:
+class ProdukModel : public QSortFilterProxyModel {
+ public:
   ProdukModel(QObject *parent);
   ~ProdukModel();
-  
+
+  QVariant data(const QModelIndex &index,
+                int role = Qt::DisplayRole) const override;
+
   void refresh();
 
-private:
+ private:
   QSqlQueryModel *src;
-
 };
 
-#endif // PRODUKMODEL_H
+#endif  // PRODUKMODEL_H

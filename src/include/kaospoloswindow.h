@@ -3,34 +3,30 @@
 
 #include <QMainWindow>
 #include <QTreeWidgetItem>
+
 #include "database.h"
 
 namespace Ui {
-  class KaosPolosWindow;
+class KaosPolosWindow;
 }
 
-class KaosPolosWindow : public QMainWindow
-{
+class KaosPolosWindow : public QMainWindow {
   Q_OBJECT
 
-public:
-  explicit KaosPolosWindow(Database *d, QWidget *p=nullptr);
+ public:
+  explicit KaosPolosWindow(Database *d, QWidget *p = nullptr);
   ~KaosPolosWindow();
 
-public slots:
-  void addProduk(); // show addProduk Dialog
+ public slots:
 
-private slots:
+ private slots:
   void on_treeWidget_itemDoubleClicked(QTreeWidgetItem *it, int);
-  void registerProduk(const QVariantMap&);
 
-signals:
-  void produkAdded(const QString& nama, bool ok, const QString& error);
+ signals:
 
-private:
+ private:
   Database *db;
   Ui::KaosPolosWindow *ui;
 };
-
 
 #endif

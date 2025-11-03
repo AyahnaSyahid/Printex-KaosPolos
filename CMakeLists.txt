@@ -26,6 +26,9 @@ add_executable(KaosPolos src/main.cpp
                          src/include/dockproduk.h
                          src/produkmodel.cpp
                          src/include/produkmodel.h
+                         src/ui/updatestockdialog.ui
+                         src/include/updatestockdialog.h
+                         src/updatestockdialog.cpp
                          )
 
 target_include_directories(KaosPolos PRIVATE src/include
