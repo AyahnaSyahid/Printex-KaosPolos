@@ -10,8 +10,8 @@
 #include <QVBoxLayout>
 
 #include "addproduk.h"
-#include "produkinfo.h"
 #include "database.h"
+#include "produkinfo.h"
 
 DockProduk::DockProduk(Database *_d, KaosPolosWindow *parent)
     : pm(new ProdukModel(this)),
@@ -43,7 +43,8 @@ DockProduk::DockProduk(Database *_d, KaosPolosWindow *parent)
   setObjectName("dockProduk");
 
   parent->addItemHook("Produk", "Baru");
-  connect(parent, &KaosPolosWindow::triggerHook, this, &DockProduk::hookTriggered);
+  connect(parent, &KaosPolosWindow::triggerHook, this,
+          &DockProduk::hookTriggered);
   QMetaObject::connectSlotsByName(this);
 }
 
@@ -55,11 +56,12 @@ void DockProduk::on_produkView_customContextMenuRequested(const QPoint &p) {
   if (contextIndex.isValid()) {
     QString pname = contextIndex.siblingAtColumn(1).data().toString();
     auto showInfo = menu.addAction("Lihat");
-    connect(showInfo, &QAction::triggered, [this, &pname](){ displayProduk(pname); });
+    connect(showInfo, &QAction::triggered,
+            [this, &pname]() { displayProduk(pname); });
   }
   auto np = menu.addAction("Produk baru");
   connect(np, &QAction::triggered, this, &DockProduk::addProduk);
-  
+
   auto sp = produkView->viewport()->mapToGlobal(p);
   menu.exec(sp);
 }
@@ -85,7 +87,7 @@ void DockProduk::addProdukHandler() {
   }
 }
 
-void DockProduk::hookTriggered(const QString& p, const QString& i) {
+void DockProduk::hookTriggered(const QString &p, const QString &i) {
   if (p == "Produk" && i == "Baru") {
     addProduk();
   }

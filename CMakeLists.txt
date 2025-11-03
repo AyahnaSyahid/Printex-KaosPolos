@@ -36,6 +36,9 @@ add_executable(KaosPolos src/main.cpp
                          src/dockkonsumen.cpp
                          src/include/konsumenmodel.h
                          src/konsumenmodel.cpp
+                         src/ui/addkonsumen.ui
+                         src/include/addkonsumen.h
+                         src/addkonsumen.cpp
                          )
 
 target_include_directories(KaosPolos PRIVATE src/include
