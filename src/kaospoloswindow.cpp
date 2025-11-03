@@ -4,16 +4,48 @@
 #include <QSqlQueryModel>
 
 #include "dockproduk.h"
+#include "dockkonsumen.h"
 #include "ui/ui_kaospoloswindow.h"
 
 KaosPolosWindow::KaosPolosWindow(Database *d, QWidget *p)
     : ui(new Ui::KaosPolosWindow), db(d), QMainWindow(p) {
   ui->setupUi(this);
+  ui->treeWidget->setColumnCount(1);
   auto dp = new DockProduk(db, this);
   addDockWidget(Qt::LeftDockWidgetArea, dp);
+  auto dk = new DockKonsumen(db, this);
+  addDockWidget(Qt::LeftDockWidgetArea, dk);
 }
 
 KaosPolosWindow::~KaosPolosWindow() {}
 
 void KaosPolosWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *it,
-                                                      int) {}
+                                                      int column)
+{
+  auto topLevel = it->parent();
+  if(!topLevel) return ;
+  emit triggerHook(topLevel->text(0), it->text(0));
+}
+
+void KaosPolosWindow::addItemHook(const QString& r, const QString& t) {
+  auto tree = ui->treeWidget;
+  auto rfound = false;
+  int topLevelIndex = 0;
+  QTreeWidgetItem *ritem, *titem;
+  
+  for(int i=0; i<tree->topLevelItemCount(); ++i) {
+    auto topLevelItem = tree->topLevelItem(i);
+    if (topLevelItem->text(0) == r) {
+      rfound = true;
+      ritem = topLevelItem;
+      break;
+    }
+  }
+  if (!rfound) {;
+    ritem = new QTreeWidgetItem();
+    ritem->setText(0, r);
+    tree->addTopLevelItem(ritem);
+  }
+  titem = new QTreeWidgetItem(ritem);
+  titem->setText(0, t);
+}

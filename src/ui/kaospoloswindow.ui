@@ -55,31 +55,6 @@
        <attribute name="headerVisible">
         <bool>false</bool>
        </attribute>
-       <column>
-        <property name="text">
-         <string>Navigasi</string>
-        </property>
-       </column>
-       <item>
-        <property name="text">
-         <string>Produk</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Tambah Produk</string>
-         </property>
-        </item>
-       </item>
-       <item>
-        <property name="text">
-         <string>Konsumen</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Tambah Konsumen</string>
-         </property>
-        </item>
-       </item>
       </widget>
      </item>
     </layout>

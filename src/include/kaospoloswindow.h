@@ -18,12 +18,14 @@ class KaosPolosWindow : public QMainWindow {
   ~KaosPolosWindow();
 
  public slots:
+  void addItemHook(const QString& root, const QString& item);
 
  private slots:
   void on_treeWidget_itemDoubleClicked(QTreeWidgetItem *it, int);
 
  signals:
-
+  void triggerHook(const QString& root, const QString& item);
+  
  private:
   Database *db;
   Ui::KaosPolosWindow *ui;

@@ -6,12 +6,13 @@
 
 #include "database.h"
 #include "produkmodel.h"
+#include "kaospoloswindow.h"
 
 class DockProduk : public QDockWidget {
   Q_OBJECT
 
  public:
-  DockProduk(Database *, QWidget * = nullptr);
+  DockProduk(Database *, KaosPolosWindow * = nullptr);
   ~DockProduk();
 
  public slots:
@@ -22,6 +23,7 @@ class DockProduk : public QDockWidget {
   void on_produkView_customContextMenuRequested(const QPoint &);
   void displayProduk(const QString &name);
   void addProdukHandler();
+  void hookTriggered(const QString& p, const QString& i);
 
  signals:
   void produkAdded(const QString &name, bool ok);

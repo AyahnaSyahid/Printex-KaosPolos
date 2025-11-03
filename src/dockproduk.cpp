@@ -10,9 +10,10 @@
 #include <QVBoxLayout>
 
 #include "addproduk.h"
+#include "produkinfo.h"
 #include "database.h"
 
-DockProduk::DockProduk(Database *_d, QWidget *parent)
+DockProduk::DockProduk(Database *_d, KaosPolosWindow *parent)
     : pm(new ProdukModel(this)),
       db(_d),
       produkView(new QTableView(this)),
@@ -27,6 +28,7 @@ DockProduk::DockProduk(Database *_d, QWidget *parent)
   produkView->hideColumn(5);
   produkView->horizontalHeader()->setStretchLastSection(true);
   produkView->verticalHeader()->hide();
+  produkView->setSortingEnabled(true);
 
   pm->setHeaderData(1, Qt::Horizontal, "Nama");
   pm->setHeaderData(2, Qt::Horizontal, "Stok");
@@ -40,6 +42,8 @@ DockProduk::DockProduk(Database *_d, QWidget *parent)
   produkView->resizeColumnsToContents();
   setObjectName("dockProduk");
 
+  parent->addItemHook("Produk", "Baru");
+  connect(parent, &KaosPolosWindow::triggerHook, this, &DockProduk::hookTriggered);
   QMetaObject::connectSlotsByName(this);
 }
 
@@ -48,13 +52,14 @@ DockProduk::~DockProduk() {}
 void DockProduk::on_produkView_customContextMenuRequested(const QPoint &p) {
   QMenu menu;
   auto contextIndex = produkView->indexAt(p);
+  if (contextIndex.isValid()) {
+    QString pname = contextIndex.siblingAtColumn(1).data().toString();
+    auto showInfo = menu.addAction("Lihat");
+    connect(showInfo, &QAction::triggered, [this, &pname](){ displayProduk(pname); });
+  }
   auto np = menu.addAction("Produk baru");
   connect(np, &QAction::triggered, this, &DockProduk::addProduk);
-  if (contextIndex.isValid()) {
-    // add another
-  }
-  auto namaProduk =
-      contextIndex.siblingAtColumn(1).data(Qt::EditRole).toString();
+  
   auto sp = produkView->viewport()->mapToGlobal(p);
   menu.exec(sp);
 }
@@ -80,5 +85,17 @@ void DockProduk::addProdukHandler() {
   }
 }
 
-void DockProduk::displayProduk(const QString &nama) {}
+void DockProduk::hookTriggered(const QString& p, const QString& i) {
+  if (p == "Produk" && i == "Baru") {
+    addProduk();
+  }
+}
+
+void DockProduk::displayProduk(const QString &nama) {
+  ProdukInfo *pinf = new ProdukInfo(nama, db, this);
+  connect(pinf, &ProdukInfo::produkUpdated, this, &DockProduk::refreshModel);
+  pinf->setAttribute(Qt::WA_DeleteOnClose);
+  pinf->open();
+}
+
 void DockProduk::refreshModel() { pm->refresh(); }
