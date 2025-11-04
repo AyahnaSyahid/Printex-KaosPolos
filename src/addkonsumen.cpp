@@ -13,7 +13,7 @@ AddKonsumen::AddKonsumen(QWidget *parent)
 AddKonsumen::~AddKonsumen() { delete ui; }
 
 void AddKonsumen::on_simpanButton_clicked() {
-  if (name().size() < 5) {
+  if (name().size() < 2) {
     QMessageBox::information(
         this, "Minimal input",
         "Nama Konsumen tidak boleh kurang dari 2 karakter");

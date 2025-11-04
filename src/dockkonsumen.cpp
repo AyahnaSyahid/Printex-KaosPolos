@@ -12,6 +12,7 @@
 #include "database.h"
 #include "kaospoloswindow.h"
 #include "konsumenmodel.h"
+#include "konsumeninfo.h"
 
 DockKonsumen::DockKonsumen(Database* _d, KaosPolosWindow* k)
     : db(_d),
@@ -66,7 +67,31 @@ void DockKonsumen::addKonsumenHandler() {
   }
 }
 
-void DockKonsumen::editKonsumen(const QString& nama) {}
+void DockKonsumen::editKonsumen(const QString& nama) {
+  KonsumenInfo *ki = new KonsumenInfo(nama, this);
+  ki->setAttribute(Qt::WA_DeleteOnClose);
+  connect(ki, &KonsumenInfo::finishEditing, this, &DockKonsumen::editKonsumenHandler);
+  ki->open();
+}
+
+void DockKonsumen::editKonsumenHandler() {
+  auto ki = qobject_cast<KonsumenInfo*>(sender());
+  if(!ki) return;
+  Transaction tr;
+  bool ok = true;
+  if (ok && ki->phoneChanged()) ok = db->setKonsumenPhone(ki->nama(), ki->updatePhone());
+  if (ok && ki->infoChanged()) ok = db->setKonsumenInfo(ki->nama(), ki->updateInfo());
+  if (ok && ki->namaChanged()) ok = db->setNamaKonsumen(ki->nama(), ki->updateNama());
+  if(ok) {
+    if(tr.commit()) {
+      ki->accept();
+      konsumenModel->refresh();
+      return;
+    }
+  }
+  QMessageBox::warning(this, "Update Gagal", "Tidak dapat menyimpan perubahan data Konsumen");
+  return ;
+}
 
 void DockKonsumen::on_konsumenView_customContextMenuRequested(const QPoint& p) {
   QMenu ctx(this);

@@ -16,10 +16,11 @@ class DockKonsumen : public QDockWidget {
 
  public slots:
   void addKonsumen();
-  void addKonsumenHandler();
   void refreshModel();
 
  private slots:
+  void addKonsumenHandler();
+  void editKonsumenHandler();
   void editKonsumen(const QString &nama);
   void hookTriggered(const QString &p, const QString &i);
   void on_konsumenView_customContextMenuRequested(const QPoint &p);
