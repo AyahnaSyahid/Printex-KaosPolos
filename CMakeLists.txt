@@ -42,6 +42,12 @@ add_executable(KaosPolos src/main.cpp
                          src/ui/konsumeninfo.ui
                          src/include/konsumeninfo.h
                          src/konsumeninfo.cpp
+                         src/ui/widgetpenjualan.ui
+                         src/include/widgetpenjualan.h
+                         src/widgetpenjualan.cpp
+                         src/ui/pembuatnota.ui
+                         src/include/pembuatnota.h
+                         src/pembuatnota.cpp
                          )
 
 target_include_directories(KaosPolos PRIVATE src/include
