@@ -1,16 +1,14 @@
 #include "pembuatnota.h"
 
-#include <qstandarditemmodel.h>
-
 #include <QAction>
 #include <QMenu>
-#include <QStandardItemModel>
 
+#include "pembuatnotamodel.h"
 #include "ui/ui_pembuatnota.h"
 
 PembuatNota::PembuatNota(QWidget *parent)
     : ui(new Ui::PembuatNota),
-      sm(new QStandardItemModel(30, 5)),
+      sm(new PembuatNotaModel(this)),
       QDialog(parent) {
   ui->setupUi(this);
   auto menu = new QMenu(this);
