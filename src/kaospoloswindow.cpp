@@ -5,6 +5,7 @@
 
 #include "dockproduk.h"
 #include "dockkonsumen.h"
+#include "widgetpenjualan.h"
 #include "ui/ui_kaospoloswindow.h"
 
 KaosPolosWindow::KaosPolosWindow(Database *d, QWidget *p)
@@ -15,6 +16,13 @@ KaosPolosWindow::KaosPolosWindow(Database *d, QWidget *p)
   addDockWidget(Qt::LeftDockWidgetArea, dp);
   auto dk = new DockKonsumen(db, this);
   addDockWidget(Qt::LeftDockWidgetArea, dk);
+  
+  WidgetPenjualan *wp = qobject_cast<WidgetPenjualan*>("widgetPenjualan");
+  
+  if (wp) {
+    connect(wp, &WidgetPenjualan::konsumenAdded, dk, &DockKonsumen::refreshModel);
+    connect(wp, &WidgetPenjualan::notaUpdated, dp, &DockProduk::refreshModel);
+  }
 }
 
 KaosPolosWindow::~KaosPolosWindow() {}

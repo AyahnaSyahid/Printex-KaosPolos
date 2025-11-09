@@ -1,28 +1,27 @@
-#ifndef "pembuatnotamodel.h"
-#define "pembuatnotamodel.h"
+#ifndef PEMBUATNOTAMODEL_H
+#define PEMBUATNOTAMODEL_H
 
-#include <QStandardItemModel>
 #include <QSqlQueryModel>
+#include <QStandardItemModel>
 
-class PembuatNotaModel : public QStandardItemModel
-{
+class PembuatNotaModel : public QStandardItemModel {
   Q_OBJECT
 
-public:
-  explicit PembuatNotaModel(QObject *parent=nullptr);
+ public:
+  explicit PembuatNotaModel(QObject *parent = nullptr);
   ~PembuatNotaModel();
 
   struct DataPenjualan;
-  enum DataRole;
-  
+  enum DataRole { MinPriceRole = 2001, MaxQtyRole };
+
   QList<DataPenjualan> sales() const;
 
-  Qt::ItemFlags flags(const QModelIndex&);
+  Qt::ItemFlags flags(const QModelIndex &);
 
-public slots:
-  void setProduk(int row, const QString& nama);
+ public slots:
+  void setProduk(int row, const QString &nama);
 
-private:
+ private:
   QSqlQueryModel *qm;
 };
 
@@ -33,9 +32,4 @@ struct PembuatNotaModel::DataPenjualan {
   int total() const;
 };
 
-enum PembuatNotaModel::DataRole {
-  MinPriceRole = 2001,
-  MaxQtyRole
-};
-
-#endif // "pembuatnotamodel.h"
+#endif  // "pembuatnotamodel.h"

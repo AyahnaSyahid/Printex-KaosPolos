@@ -4,21 +4,25 @@
 #include <QDialog>
 
 namespace Ui {
-  class PembuatNota;
+class PembuatNota;
 }
 
 class QStandardItemModel;
-class PembuatNota : public QDialog
-{
+class PembuatNota : public QDialog {
   Q_OBJECT
-public:
-  
+ public:
   explicit PembuatNota(QWidget *p);
   ~PembuatNota();
-  
-private:
+
+ private slots:
+  void on_konsumenCombo_customContextMenuRequested(const QPoint &p);
+  void on_notaTable_customContextMenuRequested(const QPoint &p);
+  void createKonsumen();
+  void addKonsumenReceiver();
+
+ private:
   Ui::PembuatNota *ui;
   QStandardItemModel *sm;
 };
 
-#endif // PEMBUATNOTA_H
+#endif  // PEMBUATNOTA_H

@@ -22,6 +22,10 @@ private slots:
   void on_jualButton_clicked();
   void on_harianView_customContextMenuRequested(const QPoint&);
 
+signals:
+  void konsumenAdded();
+  void notaUpdated();
+
 private:
   Ui::WidgetPenjualan *ui;
 };
