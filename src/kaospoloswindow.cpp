@@ -17,11 +17,10 @@ KaosPolosWindow::KaosPolosWindow(Database *d, QWidget *p)
   auto dk = new DockKonsumen(db, this);
   addDockWidget(Qt::LeftDockWidgetArea, dk);
   
-  WidgetPenjualan *wp = qobject_cast<WidgetPenjualan*>("widgetPenjualan");
+  WidgetPenjualan *wp = qobject_cast<WidgetPenjualan*>(ui->widgetPenjualan);
   
   if (wp) {
-    connect(wp, &WidgetPenjualan::konsumenAdded, dk, &DockKonsumen::refreshModel);
-    connect(wp, &WidgetPenjualan::notaUpdated, dp, &DockProduk::refreshModel);
+    wp->setKaosPolosWindow(this);
   }
 }
 

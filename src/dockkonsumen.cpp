@@ -59,6 +59,7 @@ void DockKonsumen::addKonsumenHandler() {
   auto added = db->addKonsumen(adk->name(), adk->phone(), adk->info());
   if (added) {
     konsumenModel->refresh();
+    emit konsumenAdded();
     adk->accept();
     QMessageBox::information(this, "Berhasil",
                              "data Konsumen berhasil disimpan");

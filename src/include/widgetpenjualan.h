@@ -7,6 +7,7 @@ namespace Ui {
   class WidgetPenjualan;
 }
 
+class KaosPolosWindow;
 class WidgetPenjualan : public QWidget
 {
   Q_OBJECT
@@ -14,6 +15,7 @@ class WidgetPenjualan : public QWidget
 public:  
   WidgetPenjualan(QWidget *parent=nullptr);
   ~WidgetPenjualan();
+  void setKaosPolosWindow(KaosPolosWindow *k);
 
 public slots:
   void refreshData();
@@ -28,6 +30,7 @@ signals:
 
 private:
   Ui::WidgetPenjualan *ui;
+  KaosPolosWindow *kpw;
 };
 
 #endif

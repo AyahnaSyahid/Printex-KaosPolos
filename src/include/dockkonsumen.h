@@ -25,6 +25,9 @@ class DockKonsumen : public QDockWidget {
   void hookTriggered(const QString &p, const QString &i);
   void on_konsumenView_customContextMenuRequested(const QPoint &p);
 
+ signals:
+  void konsumenAdded();
+
  private:
   Database *db;
   KonsumenModel *konsumenModel;

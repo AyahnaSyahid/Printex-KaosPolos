@@ -7,7 +7,7 @@
 #include <QSortFilterProxyModel>
 
 WidgetPenjualan::WidgetPenjualan(QWidget *parent)
-  : ui(new Ui::WidgetPenjualan), QWidget(parent)
+  : ui(new Ui::WidgetPenjualan), kpw(nullptr), QWidget(parent)
 {
   ui->setupUi(this);
   auto sqlModel = new QSqlQueryModel(this);
@@ -22,7 +22,7 @@ WidgetPenjualan::WidgetPenjualan(QWidget *parent)
 WidgetPenjualan::~WidgetPenjualan(){ delete ui; }
 
 void WidgetPenjualan::on_jualButton_clicked() {
-  PembuatNota *nt = new PembuatNota(this);
+  PembuatNota *nt = new PembuatNota(kpw, this);
   nt->setAttribute(Qt::WA_DeleteOnClose);
   nt->open();
 }
@@ -34,4 +34,8 @@ void WidgetPenjualan::refreshData() {
   if (sm) {
     sm->setQuery(sm->query().lastQuery());
   }
+}
+
+void WidgetPenjualan::setKaosPolosWindow(KaosPolosWindow *k) {
+  kpw = k;
 }

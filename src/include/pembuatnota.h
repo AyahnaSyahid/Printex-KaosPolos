@@ -6,23 +6,30 @@
 namespace Ui {
 class PembuatNota;
 }
-
+class KaosPolosWindow;
+class QSqlQueryModel;
 class QStandardItemModel;
+class DockKonsumen;
 class PembuatNota : public QDialog {
   Q_OBJECT
  public:
-  explicit PembuatNota(QWidget *p);
+  explicit PembuatNota(KaosPolosWindow* k, QWidget *p);
   ~PembuatNota();
 
+ public slots:
+  void refreshKonsumen();
+
  private slots:
-  void on_konsumenCombo_customContextMenuRequested(const QPoint &p);
+  void on_konsumenKombo_customContextMenuRequested(const QPoint &p);
   void on_notaTable_customContextMenuRequested(const QPoint &p);
   void createKonsumen();
-  void addKonsumenReceiver();
 
  private:
   Ui::PembuatNota *ui;
+  KaosPolosWindow *kpw;
+  DockKonsumen *dc;
   QStandardItemModel *sm;
+  QSqlQueryModel *konsumenModel;
 };
 
 #endif  // PEMBUATNOTA_H
