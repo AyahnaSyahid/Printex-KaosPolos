@@ -10,6 +10,7 @@
 #include "include/dockkonsumen.h"
 #include "include/pembuatnotamodel.h"
 #include "ui/ui_pembuatnota.h"
+#include "notainputdialog.h"
 
 PembuatNota::PembuatNota(KaosPolosWindow *kp, QWidget *parent)
     : ui(new Ui::PembuatNota), 
@@ -33,20 +34,8 @@ PembuatNota::PembuatNota(KaosPolosWindow *kp, QWidget *parent)
   ui->notaTable->horizontalHeader()->resizeSection(1, 32 * 5);
   ui->notaTable->horizontalHeader()->resizeSection(2, 36);
   ui->notaTable->horizontalHeader()->resizeSection(3, 65);
-  ui->notaTable->horizontalHeader()->resizeSection(4, 32 * 4);
-
-  QStandardItem *item;
-  for (int i = 0; i < 30; ++i) {
-    QList<QStandardItem *> columns;
-    for (int j = 0; j < 5; ++j) {
-      item = new QStandardItem();
-      if (j == 0 || j == 4) {
-        item->setEditable(false);
-      }
-    }
-    sm->appendRow(columns);
-  }
-
+  ui->notaTable->horizontalHeader()->resizeSection(4, 28 * 4);
+  ui->notaTable->setToolTip("Klik kanan pada mouse\nmenampilkan menu lanjutan");
   konsumenModel->setQuery("SELECT * FROM Konsumen");
   ui->konsumenKombo->setModel(konsumenModel);
   ui->konsumenKombo->setModelColumn(1);
@@ -73,9 +62,58 @@ void PembuatNota::on_konsumenKombo_customContextMenuRequested(const QPoint &p) {
   kmenu.exec(ui->konsumenKombo->mapToGlobal(p));
 }
 
+void PembuatNota::addOrder() {
+  NotaInputDialog *nid = new NotaInputDialog(this);
+  connect(nid, &NotaInputDialog::doneEditing, this, &PembuatNota::processInputDialog);
+  nid->open();
+}
+
 void PembuatNota::on_notaTable_customContextMenuRequested(const QPoint &p)
 {
+  QMenu nMenu;
+  QAction* add = nMenu.addAction("Buat");
+  connect(add, &QAction::triggered, this, &PembuatNota::addOrder);
   
+  nMenu.exec(ui->notaTable->viewport()->mapToGlobal(p));
+}
+
+void PembuatNota::processInputDialog() {
+  NotaInputDialog *nid = qobject_cast<NotaInputDialog*>(sender());
+  if (!nid) return ;
+  
+  auto nomorItem = new QStandardItem(QString::number(sm->rowCount() + 1));
+  nomorItem->setData((int) Qt::AlignRight | Qt::AlignVCenter, Qt::TextAlignmentRole);
+  auto produkItem = new QStandardItem(nid->namaProduk());
+  produkItem->setData((int) Qt::AlignHCenter | Qt::AlignVCenter, Qt::TextAlignmentRole);
+  auto qtyItem = new QStandardItem(locale().toString(nid->qty()));
+  qtyItem->setData((int) Qt::AlignRight | Qt::AlignVCenter, Qt::TextAlignmentRole);
+  qtyItem->setData(nid->qty(), Qt::EditRole);
+  qtyItem->setData(locale().toString(nid->qty()), Qt::DisplayRole);
+  auto priceItem = new QStandardItem();
+  priceItem->setData((int) Qt::AlignRight | Qt::AlignVCenter, Qt::TextAlignmentRole);
+  priceItem->setData(nid->harga(), Qt::EditRole);
+  priceItem->setData(locale().toString(nid->harga()), Qt::DisplayRole);
+  auto totalItem = new QStandardItem();
+  totalItem->setData((int) Qt::AlignRight | Qt::AlignVCenter, Qt::TextAlignmentRole);
+  totalItem->setData(nid->harga() * nid->qty(), Qt::EditRole);
+  totalItem->setData(locale().toString(nid->harga() * nid->qty()), Qt::DisplayRole);
+  
+  QList<QStandardItem*> row {nomorItem, produkItem, qtyItem, priceItem, totalItem}; 
+  sm->appendRow(row);
+  updateGrandTotal();
+  
+  nid->accept();
+  nid->deleteLater();
+}
+
+void PembuatNota::updateGrandTotal() {
+  int f = 0;
+  for (int i=0; i < sm->rowCount(); ++i) {
+    f += sm->index(i, 4).data(Qt::EditRole).toInt();
+  }
+  ui->totalLineEdit->setReadOnly(false);
+  ui->totalLineEdit->setText(locale().toString(f));
+  ui->totalLineEdit->setReadOnly(true);
 }
 
 void PembuatNota::refreshKonsumen() {

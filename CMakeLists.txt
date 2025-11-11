@@ -50,6 +50,10 @@ add_executable(KaosPolos src/main.cpp
                          src/pembuatnota.cpp
                          src/include/pembuatnotamodel.h
                          src/pembuatnotamodel.cpp
+                         src/notainputdialog.cpp
+                         src/ui/notainputdialog.ui
+                         src/include/notainputdialog.h
+                         
                          )
 
 target_include_directories(KaosPolos PRIVATE src/include

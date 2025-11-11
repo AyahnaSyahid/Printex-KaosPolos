@@ -18,11 +18,14 @@ class PembuatNota : public QDialog {
 
  public slots:
   void refreshKonsumen();
+  void addOrder();
 
  private slots:
   void on_konsumenKombo_customContextMenuRequested(const QPoint &p);
   void on_notaTable_customContextMenuRequested(const QPoint &p);
   void createKonsumen();
+  void processInputDialog();
+  void updateGrandTotal();
 
  private:
   Ui::PembuatNota *ui;

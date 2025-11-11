@@ -1,47 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AddProduk</class>
- <widget class="QDialog" name="AddProduk">
+ <class>NotaInputDialog</class>
+ <widget class="QDialog" name="NotaInputDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>277</width>
-    <height>128</height>
+    <width>306</width>
+    <height>130</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Produk Baru</string>
+   <string>Buat Order</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Nama Produk</string>
+      <string>Produk / Barang</string>
      </property>
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="nameEdit">
-     <property name="placeholderText">
-      <string>Nama Unik Produk</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QComboBox" name="comboBox">
+       <property name="minimumSize">
+        <size>
+         <width>151</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="toolButton">
+       <property name="text">
+        <string>Baru</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Stok Awal</string>
+      <string>Qty</string>
      </property>
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QSpinBox" name="stockBox">
-     <property name="font">
-      <font>
-       <bold>true</bold>
-      </font>
-     </property>
+    <widget class="QSpinBox" name="spinBox">
      <property name="alignment">
       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
      </property>
@@ -55,30 +67,19 @@
       <number>1</number>
      </property>
      <property name="maximum">
-      <number>1000000</number>
-     </property>
-     <property name="singleStep">
-      <number>1</number>
-     </property>
-     <property name="stepType">
-      <enum>QAbstractSpinBox::StepType::AdaptiveDecimalStepType</enum>
+      <number>999999</number>
      </property>
     </widget>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>Harga Jual</string>
+      <string>Harga</string>
      </property>
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QSpinBox" name="priceBox">
-     <property name="font">
-      <font>
-       <bold>true</bold>
-      </font>
-     </property>
+    <widget class="QSpinBox" name="spinBox2">
      <property name="alignment">
       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
      </property>
@@ -88,13 +89,16 @@
      <property name="showGroupSeparator" stdset="0">
       <bool>true</bool>
      </property>
+     <property name="prefix">
+      <string>Rp. </string>
+     </property>
      <property name="maximum">
-      <number>1000000</number>
+      <number>2000000</number>
      </property>
     </widget>
    </item>
    <item row="3" column="0" colspan="2">
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
@@ -109,10 +113,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="saveButton">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
+      <widget class="QPushButton" name="simpanButton">
        <property name="text">
         <string>Simpan</string>
        </property>

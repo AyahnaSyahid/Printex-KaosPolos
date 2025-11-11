@@ -3,19 +3,7 @@
 #include <QStandardItem>
 
 PembuatNotaModel::PembuatNotaModel(QObject *parent)
-    : qm(new QSqlQueryModel(this)), QStandardItemModel(30, 5, parent) {
-  QStandardItem *item;
-  QList<QStandardItem *> row;
-  for (int i = 0; i < 30; i++) {
-    row.clear();
-    for (int j = 0; j < 5; ++j) {
-      item = new QStandardItem();
-      if (j == 0 || j == 4) {
-        item->setEditable(false);
-      }
-    }
-  }
-
+    : qm(new QSqlQueryModel(this)), QStandardItemModel(0, 5, parent) {
   qm->setQuery("SELECT nama, base_price, stock FROM Produk");
   while (qm->canFetchMore()) qm->fetchMore();
 }
