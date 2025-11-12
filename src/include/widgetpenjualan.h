@@ -2,6 +2,7 @@
 #define WIDGETPENJUALAN_H
 
 #include <QWidget>
+#include <QSortFilterProxyModel>
 
 namespace Ui {
   class WidgetPenjualan;
@@ -12,7 +13,8 @@ class WidgetPenjualan : public QWidget
 {
   Q_OBJECT
 
-public:  
+public:
+  class ModelAdapter;
   WidgetPenjualan(QWidget *parent=nullptr);
   ~WidgetPenjualan();
   void setKaosPolosWindow(KaosPolosWindow *k);
@@ -31,6 +33,13 @@ signals:
 private:
   Ui::WidgetPenjualan *ui;
   KaosPolosWindow *kpw;
+};
+
+class WidgetPenjualan::ModelAdapter : public QSortFilterProxyModel
+{
+public:
+  ModelAdapter(QObject *parent);
+  QVariant data(const QModelIndex& ix, int role = Qt::DisplayRole) const override;
 };
 
 #endif

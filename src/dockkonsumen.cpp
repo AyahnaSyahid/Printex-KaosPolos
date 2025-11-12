@@ -6,6 +6,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QTableView>
+#include <QHeaderView>
 #include <QVBoxLayout>
 
 #include "addkonsumen.h"
@@ -26,7 +27,15 @@ DockKonsumen::DockKonsumen(Database* _d, KaosPolosWindow* k)
   konsumenView->setModel(konsumenModel);
   konsumenView->setSortingEnabled(true);
   konsumenView->setContextMenuPolicy(Qt::CustomContextMenu);
-
+  konsumenView->horizontalHeader()->hideSection(0);
+  konsumenView->horizontalHeader()->hideSection(4);
+  konsumenView->horizontalHeader()->hideSection(5);
+  konsumenView->horizontalHeader()->setStretchLastSection(true);
+  konsumenView->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+  konsumenView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+  konsumenView->setSelectionBehavior(QAbstractItemView::SelectRows);
+  konsumenView->setSelectionMode(QAbstractItemView::SingleSelection);
+  
   v->addWidget(konsumenView);
   k->addItemHook("Konsumen", "Baru");
   connect(k, &KaosPolosWindow::triggerHook, this, &DockKonsumen::hookTriggered);

@@ -7,6 +7,9 @@ KonsumenModel::KonsumenModel(QObject *parent)
 {
   src->setQuery("SELECT * FROM Konsumen");
   setSourceModel(src);
+  setHeaderData(1, Qt::Horizontal, "Nama");
+  setHeaderData(2, Qt::Horizontal, "No. HP");
+  setHeaderData(3, Qt::Horizontal, "Info");
 }
 
 KonsumenModel::~KonsumenModel(){}

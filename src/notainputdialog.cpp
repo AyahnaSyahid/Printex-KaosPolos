@@ -29,7 +29,14 @@ int NotaInputDialog::harga() const {
 }
 
 void NotaInputDialog::on_simpanButton_clicked() {
-  if (ui->comboBox->currentIndex() < 0) return;
+  if (ui->comboBox->currentIndex() < 0) {
+    QMessageBox(this, "Kesalahan Input", "Nama Produk tidak valid / belum terdaftar");
+    return;
+  }
+  if (ui->spinBox->value() == 0) {
+    QMessageBox(this, "Kesalahan Input", "Penjualan dengan jumlah produk 0 tidak diperbolehkan");
+    return ;
+  }
   emit doneEditing();
 };
 
@@ -39,6 +46,10 @@ void NotaInputDialog::on_comboBox_currentIndexChanged(int i)
   auto rc = produkModel->record(i);
   if (rc.isEmpty()) {
     return;
+  }
+  if (rc.value("stock").toInt() < 1) {
+    QMessageBox::information(this, "Stok Habis", "Stok produk ini telah habis");
+    ui->comboBox->setCurrentIndex(-1);
   }
   ui->simpanButton->setDisabled(i < 0);
   ui->spinBox->setMaximum(rc.value("stock").toInt());

@@ -15,7 +15,11 @@ class PembuatNota : public QDialog {
  public:
   explicit PembuatNota(KaosPolosWindow* k, QWidget *p);
   ~PembuatNota();
-
+  
+  enum Role {
+    NumberValueRole = Qt::UserRole + 1
+  };
+  
  public slots:
   void refreshKonsumen();
   void addOrder();
@@ -23,9 +27,14 @@ class PembuatNota : public QDialog {
  private slots:
   void on_konsumenKombo_customContextMenuRequested(const QPoint &p);
   void on_notaTable_customContextMenuRequested(const QPoint &p);
+  void on_simpan();
+  void on_bayar();
   void createKonsumen();
   void processInputDialog();
   void updateGrandTotal();
+
+signals:
+  void penjualanSaved();
 
  private:
   Ui::PembuatNota *ui;

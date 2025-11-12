@@ -15,6 +15,7 @@ class KaosPolosWindow : public QMainWindow {
 
  public:
   explicit KaosPolosWindow(Database *d, QWidget *p = nullptr);
+  inline Database* database() const { return db; }
   ~KaosPolosWindow();
 
  public slots:

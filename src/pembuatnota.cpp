@@ -1,13 +1,16 @@
 #include "pembuatnota.h"
+#include "database.h"
 
 #include <QAction>
 #include <QDateTime>
 #include <QMenu>
 #include <QHeaderView>
 #include <QSqlQueryModel>
+#include <QMessageBox>
 
 #include "include/kaospoloswindow.h"
 #include "include/dockkonsumen.h"
+#include "include/dockproduk.h"
 #include "include/pembuatnotamodel.h"
 #include "ui/ui_pembuatnota.h"
 #include "notainputdialog.h"
@@ -20,8 +23,10 @@ PembuatNota::PembuatNota(KaosPolosWindow *kp, QWidget *parent)
       QDialog(parent) {
   ui->setupUi(this);
   auto menu = new QMenu(this);
-  auto sim = menu->addAction("Simpan");
   auto bay = menu->addAction("Bayar");
+  auto sim = menu->addAction("Simpan");
+  connect(sim, &QAction::triggered, this, &PembuatNota::on_simpan);
+  connect(bay, &QAction::triggered, this, &PembuatNota::on_bayar);
   ui->pushButton->setMenu(menu);
   ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
   sm->setHeaderData(0, Qt::Horizontal, "No.");
@@ -42,8 +47,13 @@ PembuatNota::PembuatNota(KaosPolosWindow *kp, QWidget *parent)
   ui->konsumenKombo->setCurrentIndex(-1);
   
   dc = kpw->findChild<DockKonsumen*>("dockKonsumen");
+  // Rasanya dock konsumen tidak ada kaitannya dengan penjual/belian barang
   if(dc) {
     connect(dc, &DockKonsumen::konsumenAdded, this, &PembuatNota::refreshKonsumen);
+  }
+  auto dp = kpw->findChild<DockProduk*>("dockProduk");
+  if (dp) {
+    connect(this, &PembuatNota::penjualanSaved, dp, &DockProduk::refreshModel);
   }
 }
 
@@ -65,6 +75,8 @@ void PembuatNota::on_konsumenKombo_customContextMenuRequested(const QPoint &p) {
 void PembuatNota::addOrder() {
   NotaInputDialog *nid = new NotaInputDialog(this);
   connect(nid, &NotaInputDialog::doneEditing, this, &PembuatNota::processInputDialog);
+  // connect(nid, &NotaInputDialog::accepted, this, &NotaInputDialog::deleteLater);
+  connect(nid, &NotaInputDialog::rejected, this, &NotaInputDialog::deleteLater);
   nid->open();
 }
 
@@ -83,23 +95,29 @@ void PembuatNota::processInputDialog() {
   
   auto nomorItem = new QStandardItem(QString::number(sm->rowCount() + 1));
   nomorItem->setData((int) Qt::AlignRight | Qt::AlignVCenter, Qt::TextAlignmentRole);
+  
   auto produkItem = new QStandardItem(nid->namaProduk());
   produkItem->setData((int) Qt::AlignHCenter | Qt::AlignVCenter, Qt::TextAlignmentRole);
+  
   auto qtyItem = new QStandardItem(locale().toString(nid->qty()));
   qtyItem->setData((int) Qt::AlignRight | Qt::AlignVCenter, Qt::TextAlignmentRole);
-  qtyItem->setData(nid->qty(), Qt::EditRole);
+  qtyItem->setData(nid->qty(), NumberValueRole);
   qtyItem->setData(locale().toString(nid->qty()), Qt::DisplayRole);
+  
   auto priceItem = new QStandardItem();
   priceItem->setData((int) Qt::AlignRight | Qt::AlignVCenter, Qt::TextAlignmentRole);
-  priceItem->setData(nid->harga(), Qt::EditRole);
+  priceItem->setData(nid->harga(), NumberValueRole);
   priceItem->setData(locale().toString(nid->harga()), Qt::DisplayRole);
+  
   auto totalItem = new QStandardItem();
   totalItem->setData((int) Qt::AlignRight | Qt::AlignVCenter, Qt::TextAlignmentRole);
-  totalItem->setData(nid->harga() * nid->qty(), Qt::EditRole);
+  totalItem->setData(nid->harga() * nid->qty(), NumberValueRole);
   totalItem->setData(locale().toString(nid->harga() * nid->qty()), Qt::DisplayRole);
   
   QList<QStandardItem*> row {nomorItem, produkItem, qtyItem, priceItem, totalItem}; 
+  
   sm->appendRow(row);
+  
   updateGrandTotal();
   
   nid->accept();
@@ -109,14 +127,48 @@ void PembuatNota::processInputDialog() {
 void PembuatNota::updateGrandTotal() {
   int f = 0;
   for (int i=0; i < sm->rowCount(); ++i) {
-    f += sm->index(i, 4).data(Qt::EditRole).toInt();
+    f += sm->index(i, 4).data(NumberValueRole).toInt();
   }
-  ui->totalLineEdit->setReadOnly(false);
+  // ui->totalLineEdit->setReadOnly(false);
   ui->totalLineEdit->setText(locale().toString(f));
-  ui->totalLineEdit->setReadOnly(true);
+  // ui->totalLineEdit->setReadOnly(true);
 }
 
 void PembuatNota::refreshKonsumen() {
   konsumenModel->setQuery(konsumenModel->query().lastQuery());
   ui->konsumenKombo->setCurrentIndex(-1);
+}
+
+void PembuatNota::on_simpan() {
+  Database *db = kpw->database();
+  if (ui->konsumenKombo->currentIndex() < 0) {
+    QMessageBox::information(this, "Tidak dapat menyimpan", "Anda belum menentukan Konsumen Terdaftar");
+    return;
+  }
+
+  QList<QString> produkList;
+  QList<int> qtyList, hargaList;
+  for (int i=0; i < sm->rowCount() ; ++i) {
+    produkList << sm->index(i, 1).data().toString();
+    qtyList << sm->index(i, 2).data(NumberValueRole).toInt();
+    hargaList << sm->index(i, 3).data(NumberValueRole).toInt();
+  }
+  
+  if (produkList.count() < 1) {
+    QMessageBox::information(this, "Tidak dapat menyimpan", "Tidak ada satupun order yang dicatat");
+    return;
+  }
+  
+  auto r = db->addPenjualan(produkList, qtyList, hargaList);
+  if ( r.success ) {
+    auto ir = db->createInvoice(r.penjualanIds, ui->konsumenKombo->currentText());
+    if (ir.success) {
+      emit penjualanSaved();
+      accept();
+    }
+  }
+}
+
+void PembuatNota::on_bayar() {
+  
 }

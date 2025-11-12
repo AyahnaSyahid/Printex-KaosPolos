@@ -53,7 +53,7 @@ add_executable(KaosPolos src/main.cpp
                          src/notainputdialog.cpp
                          src/ui/notainputdialog.ui
                          src/include/notainputdialog.h
-                         
+                         src/initdummy.cpp
                          )
 
 target_include_directories(KaosPolos PRIVATE src/include

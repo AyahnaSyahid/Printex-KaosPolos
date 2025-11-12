@@ -257,7 +257,7 @@ bool Database::setKonsumenInfo(const QString &nama, const QString &info) {
   QSqlQuery q;
   q.prepare(R"-(
     UPDATE Konsumen 
-    SET info = ?
+    SET (info, updated) = (?, datetime('now', 'localtime'))
     WHERE nama = ?;
       )-");
   q.addBindValue(info);
@@ -277,7 +277,7 @@ bool Database::setKonsumenPhone(const QString &nama, const QString &phone) {
   QSqlQuery q;
   q.prepare(R"-(
     UPDATE Konsumen 
-    SET phone = ?
+    SET (phone, updated) = (?, datetime('now', 'localtime'))
     WHERE nama = ?;
       )-");
 
@@ -299,7 +299,7 @@ bool Database::setNamaKonsumen(const QString &nama_old,
   QSqlQuery q;
   q.prepare(R"-(
     UPDATE Konsumen 
-    SET nama = ?
+    SET (nama, updated) = (?, datetime('now', 'localtime'))
     WHERE nama = ?;
       )-");
   q.addBindValue(nama_new);
@@ -354,8 +354,8 @@ const AddPenjualanResult Database::addPenjualan(const QStringList produkList,
     if (produkBasePrice(pr) > priceList.at(i)) {
       res.errorMessage =
           QString(
-              "Penjualan dibawah harga standar tidak diizinkan, Produk : '%1'")
-              .arg(pr);
+              "Penjualan dibawah harga standar tidak diizinkan, Produk : '%1' (%2 < %3)")
+              .arg(pr).arg(priceList.at(i)).arg(produkBasePrice(pr));
       qDebug() << "Err: " << res.errorMessage;
       return res;
     }

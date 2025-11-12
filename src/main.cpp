@@ -16,9 +16,10 @@ void cleanUp() {
   tbr.removeRecursively();
 }
 
+void initDummyData(Database *);
+
 int main(int argc, char **args) {
   QApplication app(argc, args);
-
   app.setOrganizationName("Custom Soft");
   app.setApplicationName("JualKaosDB");
   QLocale locale(QLocale::Indonesian, QLocale::Indonesia);
@@ -26,6 +27,9 @@ int main(int argc, char **args) {
   QDir appdir(app.applicationDirPath());
   appdir.mkpath("data");
   Database database(appdir.absoluteFilePath("data"));
+  
+  initDummyData(&database);
+  
   KaosPolosWindow kp(&database);
   kp.show();
   // QTimer::singleShot(5000, app.quit);
