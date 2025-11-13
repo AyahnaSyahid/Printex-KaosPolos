@@ -1,4 +1,6 @@
 #include "paymentdialog.h"
+#include "kaospoloswindow.h"
+#include "widgetinvoice.h"
 #include "ui/ui_paymentdialog.h"
 #include "database.h"
 
@@ -62,9 +64,17 @@ void PaymentDialog::on_bayarButton_clicked() {
   }
   auto res = db->createPayment(invoiceId, ui->cashBox->value(), ui->comboBox->currentText());
   if (res.success) {
+    KaosPolosWindow* kpw = qobject_cast<KaosPolosWindow*>(parent());
+    if (kpw) {
+      WidgetInvoice* wi = kpw->findChild<WidgetInvoice*>("widgetInvoice");
+      if(wi) {
+        wi->refreshData();
+      }
+    }
     emit paymentSuccess();
     accept();
   } else {
+    qDebug() << res.errorMessage;
     emit paymentFail(res.errorMessage);
   }
 }

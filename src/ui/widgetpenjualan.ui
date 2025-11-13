@@ -66,6 +66,15 @@
         <property name="contextMenuPolicy">
          <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
         </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+        </property>
+        <attribute name="verticalHeaderMinimumSectionSize">
+         <number>18</number>
+        </attribute>
+        <attribute name="verticalHeaderDefaultSectionSize">
+         <number>18</number>
+        </attribute>
        </widget>
       </item>
      </layout>

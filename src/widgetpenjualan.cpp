@@ -70,6 +70,8 @@ WidgetPenjualan::ModelAdapter::ModelAdapter(QObject *parent) : QSortFilterProxyM
 QVariant WidgetPenjualan::ModelAdapter::data(const QModelIndex& mi, int role) const {
   if(role == Qt::TextAlignmentRole) {
     switch (mi.column()) {
+      case 0:
+        return Qt::AlignCenter;
       case 1:
       case 2:
       case 4:

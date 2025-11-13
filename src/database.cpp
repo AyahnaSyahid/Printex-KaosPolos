@@ -859,11 +859,12 @@ const CreatePaymentResult Database::createPayment(quint64 invoice_id,
     return res;
   }
   
-  iU.prepare("UPDATE Invoice SET (paid, unpaid, last_payment, modified) VALUES ( :pd, :upd, :pt, :mdf)");
+  iU.prepare("UPDATE Invoice SET (paid, unpaid, last_payment, modified) = ( :pd, :upd, :pt, :mdf) WHERE id = :iid ");
   iU.bindValue(":pd", inv_paid + value);
   iU.bindValue(":upd", inv_unpaid - value);
   iU.bindValue(":pt", pay_time.toString("yyyy-MM-dd HH:mm:ss"));
   iU.bindValue(":mdf", QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss"));
+  iU.bindValue(":iid", invoice_id);
   
   if(!iU.exec()) {
     if(iU.lastError().isValid()) {
@@ -875,7 +876,7 @@ const CreatePaymentResult Database::createPayment(quint64 invoice_id,
     return res;
   }
   
-  pC.prepare("INSERT INTO Pembayaran (pay_time, info, value, invoice_id) VALUES (:pt, :inf, :va, :inv);");
+  pC.prepare("INSERT INTO Pembayaran (pay_time, info, value, invoice_id) VALUES (:pt, :inf, :va, :inv)");
   pC.bindValue(":pt", pay_time.toString("yyyy-MM-dd HH:mm:ss"));
   pC.bindValue(":inf", info);
   pC.bindValue(":va", value);
@@ -893,5 +894,10 @@ const CreatePaymentResult Database::createPayment(quint64 invoice_id,
   
   res.paymentId = pC.lastInsertId().toULongLong();
   res.success = res.paymentId != 0;
+  if (!tr.commit()) {
+    res.success = false;
+    res.errorMessage = "Unable To Commit";
+    return res;
+  }
   return res;
 }

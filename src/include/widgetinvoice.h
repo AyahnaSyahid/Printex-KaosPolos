@@ -20,6 +20,9 @@ public:
 public slots:
   void refreshData();
 
+private slots:
+  void on_unpaidInvoiceView_customContextMenuRequested(const QPoint& p);
+
 private:
   Ui::WidgetInvoice* ui;
 };
@@ -28,7 +31,7 @@ class WidgetInvoice::UnpaidModel : public QSortFilterProxyModel
 {
 public:
   explicit UnpaidModel(QObject *parent=nullptr);
-  QVariant data(const QModelIndex&, int role) const override;
+  QVariant data(const QModelIndex&, int role=Qt::DisplayRole) const override;
 };
 
 #endif
