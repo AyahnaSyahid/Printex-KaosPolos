@@ -10,7 +10,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 COMPONENTS Core Widgets Sql)
+find_package(Qt6 COMPONENTS Core Widgets Sql PrintSupport)
 
 add_executable(KaosPolos src/main.cpp
                          src/database.cpp
@@ -54,11 +54,17 @@ add_executable(KaosPolos src/main.cpp
                          src/ui/notainputdialog.ui
                          src/include/notainputdialog.h
                          src/initdummy.cpp
+                         src/ui/paymentdialog.ui
+                         src/include/paymentdialog.h
+                         src/paymentdialog.cpp
+                         src/ui/widgetinvoice.ui
+                         src/include/widgetinvoice.h
+                         src/widgetinvoice.cpp
                          )
 
 target_include_directories(KaosPolos PRIVATE src/include
                                              src/ui)
-target_link_libraries(KaosPolos PRIVATE Qt6::Widgets Qt6::Sql)
+target_link_libraries(KaosPolos PRIVATE Qt6::Widgets Qt6::Sql Qt6::PrintSupport)
 
 # add_subdirectory(qttest)
 

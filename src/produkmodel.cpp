@@ -1,7 +1,4 @@
 #include "produkmodel.h"
-
-#include <qnamespace.h>
-
 #include <QAbstractItemModel>
 #include <QLocale>
 
@@ -23,7 +20,7 @@ QVariant ProdukModel::data(const QModelIndex &mi, int role) const {
     }
   } else if (role == Qt::DisplayRole) {
     if (mi.column() == 2 || mi.column() == 3) {
-      return QLocale::system().toString(
+      return QLocale().toString(
           QSortFilterProxyModel::data(mi, role).toInt());
     }
   }

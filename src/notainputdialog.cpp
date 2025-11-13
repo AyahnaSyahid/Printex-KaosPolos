@@ -2,16 +2,39 @@
 #include "ui/ui_notainputdialog.h"
 #include <QSqlQueryModel>
 #include <QSqlQuery>
+#include <QMessageBox>
 #include <QSqlRecord>
+#include <QCompleter>
+#include <QTableView>
+#include <QHeaderView>
 
 NotaInputDialog::NotaInputDialog(QWidget *parent)
   : ui(new Ui::NotaInputDialog), produkModel(new QSqlQueryModel(this)), QDialog(parent) 
 {
   ui->setupUi(this);
   produkModel->setQuery("SELECT * FROM Produk");
+  auto compView = new QTableView();
   ui->comboBox->setModel(produkModel);
   ui->comboBox->setModelColumn(1);
+  ui->comboBox->setView(compView);
   ui->comboBox->setCurrentIndex(-1);
+  // comp->setModel(produkModel);
+  // comp->setCompletionColumn(1);
+  // comp->setCaseSensitivity(Qt::CaseInsensitive);
+  // comp->setPopup(compView);
+  compView->verticalHeader()->setMinimumSectionSize(18);
+  compView->verticalHeader()->setDefaultSectionSize(18);
+  compView->verticalHeader()->hide();
+  compView->horizontalHeader()->hideSection(0);
+  compView->horizontalHeader()->hideSection(3);
+  compView->horizontalHeader()->hideSection(4);
+  compView->horizontalHeader()->hideSection(5);
+  compView->horizontalHeader()->hide();
+  auto hh = compView->horizontalHeader();
+  compView->resizeColumnsToContents();
+  compView->setMinimumWidth(hh->sectionSize(1) + hh->sectionSize(2));
+  compView->setSelectionBehavior(compView->SelectRows);
+  hh->setStretchLastSection(true);
 }
 
 NotaInputDialog::~NotaInputDialog() { delete ui; }
@@ -30,11 +53,11 @@ int NotaInputDialog::harga() const {
 
 void NotaInputDialog::on_simpanButton_clicked() {
   if (ui->comboBox->currentIndex() < 0) {
-    QMessageBox(this, "Kesalahan Input", "Nama Produk tidak valid / belum terdaftar");
+    QMessageBox::warning(this, "Kesalahan Input", "Nama Produk tidak valid / belum terdaftar");
     return;
   }
   if (ui->spinBox->value() == 0) {
-    QMessageBox(this, "Kesalahan Input", "Penjualan dengan jumlah produk 0 tidak diperbolehkan");
+    QMessageBox::warning(this, "Kesalahan Input", "Penjualan dengan jumlah produk 0 tidak diperbolehkan");
     return ;
   }
   emit doneEditing();
@@ -47,7 +70,7 @@ void NotaInputDialog::on_comboBox_currentIndexChanged(int i)
   if (rc.isEmpty()) {
     return;
   }
-  if (rc.value("stock").toInt() < 1) {
+  if (rc.value("stock").toInt() < 1 && i != -1) {
     QMessageBox::information(this, "Stok Habis", "Stok produk ini telah habis");
     ui->comboBox->setCurrentIndex(-1);
   }

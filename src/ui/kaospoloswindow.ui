@@ -45,6 +45,31 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tabInvoice">
+       <attribute name="title">
+        <string>Invoice</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="WidgetInvoice" name="widgetInvoice" native="true"/>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -106,6 +131,12 @@
    <class>WidgetPenjualan</class>
    <extends>QWidget</extends>
    <header>widgetpenjualan.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>WidgetInvoice</class>
+   <extends>QWidget</extends>
+   <header>widgetinvoice.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -362,8 +362,8 @@ const AddPenjualanResult Database::addPenjualan(const QStringList produkList,
     
     // stock >= qty
     if (produkStock(pr) < qtyList.at(i)) {
-      res.errorMessage = QString("Tidak dapat menjual bahan melewati "
-                                    "ketersediaan stock, Produk : '%1'")
+      res.errorMessage = QString("Tidak dapat menjual Produk"
+                                    "ketersediaan stock terbatas, Produk : '%1'")
                                 .arg(pr);
       qDebug() << "Err: " << res.errorMessage;
       return res;
