@@ -1,13 +1,15 @@
 #include "widgetinvoice.h"
 #include "ui/ui_widgetinvoice.h"
+#include "database.h"
 
 #include <QSqlQueryModel>
 #include <QSqlQuery>
 #include <QHeaderView>
 #include <QMenu>
 
+
 WidgetInvoice::WidgetInvoice(QWidget *parent)
-  : ui(new Ui::WidgetInvoice), QWidget(parent)
+  : ui(new Ui::WidgetInvoice), db(nullptr), QWidget(parent)
 {
   ui->setupUi(this);
   auto model = new UnpaidModel(this);
@@ -23,6 +25,10 @@ void WidgetInvoice::refreshData()
   if(qm) {
     qm->setQuery(qm->query().lastQuery());
   }
+}
+
+void WidgetInvoice::setDatabase(Database *b) {
+  db = b;
 }
 
 void WidgetInvoice::on_unpaidInvoiceView_customContextMenuRequested(const QPoint& p) {

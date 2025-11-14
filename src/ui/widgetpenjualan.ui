@@ -58,7 +58,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Penjualan Hari</string>
+      <string>Penjualan Hari ini</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>

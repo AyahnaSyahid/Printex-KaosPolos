@@ -88,6 +88,12 @@ class Database
           const QDateTime& pay_time = QDateTime::currentDateTime());
 
     inline const bool& initialized() const { return _success; }
+    
+    // CHECKER
+    bool penjualanTelahLunas(int pid) const;
+    int notaUntukPenjualan(int pid) const;
+    bool notaTelahLunas(int nid) const;
+    QList<int> penjualanUntukNota(int nid) const;
 
   private:
     QSqlDatabase db;

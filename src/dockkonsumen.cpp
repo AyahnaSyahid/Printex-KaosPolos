@@ -108,11 +108,11 @@ void DockKonsumen::on_konsumenView_customContextMenuRequested(const QPoint& p) {
   auto ix = konsumenView->indexAt(p);
   if (ix.isValid()) {
     QString cn = ix.siblingAtColumn(1).data(Qt::DisplayRole).toString();
-    auto edt = ctx.addAction("Edit");
+    auto edt = ctx.addAction("Atur");
     connect(edt, &QAction::triggered, [this, &cn]() { editKonsumen(cn); });
     ctx.addSeparator();
   }
-  auto adk = ctx.addAction("Konsumen Baru");
+  auto adk = ctx.addAction("Baru");
   connect(adk, &QAction::triggered, this, &DockKonsumen::addKonsumen);
   ctx.exec(konsumenView->viewport()->mapToGlobal(p));
 }

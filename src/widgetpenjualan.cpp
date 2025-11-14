@@ -1,12 +1,16 @@
 #include "widgetpenjualan.h"
 #include "ui/ui_widgetpenjualan.h"
 #include "pembuatnota.h"
+#include "database.h"
+#include "widgetinvoice.h"
+#include "kaospoloswindow.h"
 
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 #include <QHeaderView>
+#include <QMenu>
+#include <QAction>
 #include <QSortFilterProxyModel>
-
 #include <QDebug>
 
 WidgetPenjualan::WidgetPenjualan(QWidget *parent)
@@ -22,7 +26,8 @@ WidgetPenjualan::WidgetPenjualan(QWidget *parent)
            Konsumen.nama AS 'Konsumen',
            Invoice.id AS 'Invoice ID',
            Produk.id AS 'produk_id',
-           Konsumen.id AS 'konsumen_id'
+           Konsumen.id AS 'konsumen_id',
+           Penjualan.id AS 'penjualan_id'
     FROM Penjualan 
     INNER JOIN Konsumen ON Konsumen.id = Invoice.konsumen_id
     INNER JOIN Produk ON Penjualan.produk_id = Produk.id 
@@ -34,31 +39,55 @@ WidgetPenjualan::WidgetPenjualan(QWidget *parent)
   sortModel->setSourceModel(sqlModel);
   ui->harianView->setModel(sortModel);
   ui->harianView->horizontalHeader()->setStretchLastSection(true);
-  // ui->harianView->horizontalHeader()->hideSection(3);
   ui->harianView->horizontalHeader()->hideSection(4);
   ui->harianView->horizontalHeader()->hideSection(5);
   ui->harianView->horizontalHeader()->hideSection(6);
-  // ui->harianView->resizeColumnsToContents();
+  ui->harianView->horizontalHeader()->hideSection(7);
+  ui->harianView->setSortingEnabled(true);
 }
 
 WidgetPenjualan::~WidgetPenjualan(){ delete ui; }
+
+void WidgetPenjualan::setDatabase(Database *d) { db = d; }
 
 void WidgetPenjualan::on_jualButton_clicked() {
   PembuatNota *nt = new PembuatNota(kpw, this);
   // nt->setAttribute(Qt::WA_DeleteOnClose);
   connect(nt, &PembuatNota::penjualanSaved, this, &WidgetPenjualan::refreshData);
+  if(kpw) {
+    auto wi = kpw->findChild<WidgetInvoice*>("widgetInvoice");
+    if (wi) {
+      connect(nt, &PembuatNota::penjualanSaved, wi, &WidgetInvoice::refreshData);
+    }
+  }
   connect(nt, &PembuatNota::accepted, nt, &PembuatNota::deleteLater);
   connect(nt, &PembuatNota::rejected, nt, &PembuatNota::deleteLater);
   nt->open();
 }
 
-void WidgetPenjualan::on_harianView_customContextMenuRequested(const QPoint& p) {}
+void WidgetPenjualan::on_harianView_customContextMenuRequested(const QPoint& p) {
+  QMenu menuPenjualan;
+  auto editAct = menuPenjualan.addAction("Edit");
+  auto hapusAct = menuPenjualan.addAction("Hapus");
+  auto at = ui->harianView->indexAt(p);
+  if(at.isValid()) {
+    connect(editAct, &QAction::triggered, [this, &at](){ editPenjualan(at.row()); });
+    connect(hapusAct, &QAction::triggered, [this, &at](){ hapusPenjualan(at.row()); });
+  }
+  menuPenjualan.exec(ui->harianView->viewport()->mapToGlobal(p));
+}
 
 void WidgetPenjualan::refreshData() {
   auto sm = findChild<QSqlQueryModel*>("sqlModel");
   if (sm) {
     sm->setQuery(sm->query().lastQuery());
   }
+}
+
+void WidgetPenjualan::editPenjualan(int r) {
+}
+
+void WidgetPenjualan::hapusPenjualan(int r) {
 }
 
 void WidgetPenjualan::setKaosPolosWindow(KaosPolosWindow *k) {

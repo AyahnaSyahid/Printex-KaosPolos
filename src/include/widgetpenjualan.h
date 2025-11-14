@@ -8,6 +8,7 @@ namespace Ui {
   class WidgetPenjualan;
 }
 
+class Database;
 class KaosPolosWindow;
 class WidgetPenjualan : public QWidget
 {
@@ -18,13 +19,15 @@ public:
   WidgetPenjualan(QWidget *parent=nullptr);
   ~WidgetPenjualan();
   void setKaosPolosWindow(KaosPolosWindow *k);
-
+  void setDatabase(Database *base);
 public slots:
   void refreshData();
 
 private slots:
   void on_jualButton_clicked();
   void on_harianView_customContextMenuRequested(const QPoint&);
+  void editPenjualan(int);
+  void hapusPenjualan(int);
 
 signals:
   void konsumenAdded();
@@ -33,6 +36,7 @@ signals:
 private:
   Ui::WidgetPenjualan *ui;
   KaosPolosWindow *kpw;
+  Database *db;
 };
 
 class WidgetPenjualan::ModelAdapter : public QSortFilterProxyModel

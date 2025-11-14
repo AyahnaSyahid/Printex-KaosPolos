@@ -55,11 +55,11 @@ void DockProduk::on_produkView_customContextMenuRequested(const QPoint &p) {
   auto contextIndex = produkView->indexAt(p);
   if (contextIndex.isValid()) {
     QString pname = contextIndex.siblingAtColumn(1).data().toString();
-    auto showInfo = menu.addAction("Lihat");
+    auto showInfo = menu.addAction("Atur");
     connect(showInfo, &QAction::triggered,
             [this, &pname]() { displayProduk(pname); });
   }
-  auto np = menu.addAction("Produk baru");
+  auto np = menu.addAction("Baru");
   connect(np, &QAction::triggered, this, &DockProduk::addProduk);
 
   auto sp = produkView->viewport()->mapToGlobal(p);

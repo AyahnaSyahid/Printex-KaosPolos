@@ -901,3 +901,51 @@ const CreatePaymentResult Database::createPayment(quint64 invoice_id,
   }
   return res;
 }
+
+bool Database::penjualanTelahLunas(int pid) const {
+  QSqlQuery q;
+  q.prepare("SELECT 1 FROM Invoice INNER JOIN Penjualan ON Penjualan.invoice_id = Invoice.id WHERE Invoice.unpaid = 0 AND Penjualan.id = ?");
+  q.addBindValue(pid)
+  if(!q.exec() || !q.exec()) {
+    qDebug() << q.lastError().text();
+    return false;
+  }
+  return true;
+}
+
+int Database::notaUntukPenjualan(int pid) const {
+  QSqlQuery q;
+  q.prepare("SELECT invoice_id FROM Penjualan WHERE id = ?");
+  q.addBindValue(pid);
+  if(!q.exec() || !q.next()) {
+    qDebug() << q.lastError().text();
+    return -1;
+  }
+  return q.value("invoice_id").toInt();
+}
+
+bool Database::notaTelahLunas(int nid) const {
+  QSqlQuery q;
+  q.prepare("SELECT * FROM Invoice WHERE unpaid = 0 AND id = ?");
+  q.addBindValue(nid);
+  if(!q.exec() || !q.next()) {
+    qDebug() << q.lastError().text();
+    return false;
+  }
+  return true;
+}
+
+QList<int> Database::penjualanUntukNota(int nid) const {
+  QSqlQuery q;
+  q.prepare("SELECT * FROM Penjualan WHERE invoice_id = ?");
+  q.addBindValue(nid);
+  if(!q.exec()) {
+    qDebug() << q.lastError().text();
+    return false;
+  }
+  QList<int> penjualanIds;
+  while (q.next()) {
+    penjualanIds << q.value("id").toInt();
+  }
+  return penjualanIds;
+}

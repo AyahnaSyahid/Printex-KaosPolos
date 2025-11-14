@@ -6,6 +6,7 @@
 #include "dockproduk.h"
 #include "dockkonsumen.h"
 #include "widgetpenjualan.h"
+#include "widgetinvoice.h"
 #include "ui/ui_kaospoloswindow.h"
 
 KaosPolosWindow::KaosPolosWindow(Database *d, QWidget *p)
@@ -18,9 +19,14 @@ KaosPolosWindow::KaosPolosWindow(Database *d, QWidget *p)
   addDockWidget(Qt::LeftDockWidgetArea, dk);
   
   WidgetPenjualan *wp = qobject_cast<WidgetPenjualan*>(ui->widgetPenjualan);
-  
   if (wp) {
     wp->setKaosPolosWindow(this);
+    wp->setDatabase(db);
+  }
+  
+  WidgetInvoice *wi = qobject_cast<WidgetInvoice*>(ui->widgetInvoice);
+  if(wi) {
+    wi->setDatabase(db);
   }
 }
 
