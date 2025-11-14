@@ -16,6 +16,7 @@ EditorPenjualan::EditorPenjualan(int pid, Database *b, QWidget *parent)
            Produk.stock AS produkStock,
            Penjualan.qty AS penjualanQty,
            Penjualan.harga_jual AS penjualanPrice,
+           Penjualan.harga_total AS penjualanTotal,
            Produk.id AS produkId,
            Produk.base_price AS produkBasePrice,
            Invoice.id AS invoiceId,
@@ -29,7 +30,7 @@ EditorPenjualan::EditorPenjualan(int pid, Database *b, QWidget *parent)
            Invoice ON Penjualan.invoice_id = Invoice.id
      WHERE Penjualan.id = ?;
   )-");
-  q.addBindValue(_pid);
+  q.addBindValue(pid);
   if(!q.exec() || !q.next()) {
     QMessageBox::information(this, "Kesalahan", "Penjualan tidak ditemukan");
     reject();
@@ -48,9 +49,9 @@ EditorPenjualan::~EditorPenjualan() { delete ui; }
 void EditorPenjualan::reject() {
   if(isModified()) {
     QMessageBox m(QMessageBox::Question, "Belum disimpan", "Perubahan data belum disimpan, Abaikan perubahan ?", QMessageBox::Yes | QMessageBox::No, this);
-    auto bt = m->button(QMessageBox::Yes);
+    auto bt = m.button(QMessageBox::Yes);
     bt->setText("Ya");
-    bt = m->button(QMessageBox::No);
+    bt = m.button(QMessageBox::No);
     bt->setText("Tidak");
     if (m.exec() == QMessageBox::Yes) {
       return QDialog::reject();
@@ -63,6 +64,47 @@ bool EditorPenjualan::isModified() const {
          ui->priceBox->value() != record.value("penjualanPrice").toInt();
 };
 
-void EditorPenjualan::on_simpanButton_triggered() {
+void EditorPenjualan::on_simpanButton_clicked() {
+  if (!isModified()) {
+    return accept();
+  }
+
+  auto newQty = ui->qtyBox->value(),
+       newPrice = ui->priceBox->value(),
+       lastTotal = record.value("penjualanTotal").toInt();
   
+  if (lastTotal < newQty * newPrice) { // nilai penjualan bertambah
+    if (record.value("invoiceUnpaid").toInt() == 0) { // nota sebelumnya telah lunas
+      AskBox ask("Konfirmasi Perubahan", 
+                 "Perubahan data penjualan ini akan mempengaruhi status lunas Nota terkait, tetap lanjutkan ?", this);
+      if (ask.exec() != QMessageBox::Yes) {
+        QMessageBox::information(this, "Dibatalkan", "Operasi perubahhan data penjualan dibatalkan");
+        ui->qtyBox->setValue(record.value("penjualanQty").toInt());
+        ui->priceBox->setValue(record.value("penjualanPrice").toInt());
+        reject();
+      }
+    }
+  }
+
+  Transaction tr;
+  QSqlQuery q;
+  q.prepare(R"-(
+    UPDATE Penjualan 
+      SET ( harga_jual, qty, harga_total, modified) 
+        = ( :hj, :qt, :ht, datetime('now', 'localtime'))
+    )-");
+  q.bindValue(":hj", ui->priceBox->value());
+  q.bindValue(":qt", ui->qtyBox->value());
+  q.bindValue(":ht", ui->qtyBox->value() * ui->priceBox->value());
+
 };
+
+EditorPenjualan::AskBox::AskBox(const QString& tt, const QString& det, QWidget *parent)
+  : QMessageBox(QMessageBox::Question, tt, det, QMessageBox::Yes | QMessageBox::No, parent)
+{
+  auto bYes = button(QMessageBox::Yes);
+  auto bNo = button(QMessageBox::No);
+
+  bYes->setText("Ya");
+  bNo->setText("Tidak");
+}

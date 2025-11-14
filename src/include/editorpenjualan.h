@@ -2,6 +2,8 @@
 #define EDITORPENJUALAN_H
 
 #include <QDialog>
+#include <QSqlRecord>
+#include <QMessageBox>
 
 namespace Ui {
   class EditorPenjualan;
@@ -15,6 +17,8 @@ class EditorPenjualan : public QDialog
 public:
   explicit EditorPenjualan(int idp, Database *b, QWidget *parent=nullptr);
   ~EditorPenjualan();
+
+  class AskBox;
 
 public slots:
   void reject() override;
@@ -30,6 +34,11 @@ private:
   QSqlRecord record;
   Database* db;
   Ui::EditorPenjualan *ui;
+};
+
+class EditorPenjualan::AskBox : public QMessageBox {
+public:
+  explicit AskBox(const QString& tt, const QString& det, QWidget *parent=nullptr);
 };
 
 #endif

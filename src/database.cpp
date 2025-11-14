@@ -905,7 +905,7 @@ const CreatePaymentResult Database::createPayment(quint64 invoice_id,
 bool Database::penjualanTelahLunas(int pid) const {
   QSqlQuery q;
   q.prepare("SELECT 1 FROM Invoice INNER JOIN Penjualan ON Penjualan.invoice_id = Invoice.id WHERE Invoice.unpaid = 0 AND Penjualan.id = ?");
-  q.addBindValue(pid)
+  q.addBindValue(pid);
   if(!q.exec() || !q.exec()) {
     qDebug() << q.lastError().text();
     return false;
@@ -939,11 +939,11 @@ QList<int> Database::penjualanUntukNota(int nid) const {
   QSqlQuery q;
   q.prepare("SELECT * FROM Penjualan WHERE invoice_id = ?");
   q.addBindValue(nid);
+  QList<int> penjualanIds;
   if(!q.exec()) {
     qDebug() << q.lastError().text();
-    return false;
+    return penjualanIds;
   }
-  QList<int> penjualanIds;
   while (q.next()) {
     penjualanIds << q.value("id").toInt();
   }

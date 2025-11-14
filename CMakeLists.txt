@@ -60,6 +60,9 @@ add_executable(KaosPolos src/main.cpp
                          src/ui/widgetinvoice.ui
                          src/include/widgetinvoice.h
                          src/widgetinvoice.cpp
+                         src/ui/editorpenjualan.ui
+                         src/include/editorpenjualan.h
+                         src/editorpenjualan.cpp
                          )
 
 target_include_directories(KaosPolos PRIVATE src/include
