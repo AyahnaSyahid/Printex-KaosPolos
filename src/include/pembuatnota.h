@@ -23,6 +23,7 @@ class PembuatNota : public QDialog {
  public slots:
   void refreshKonsumen();
   void addOrder();
+  void removeOrder();
 
  private slots:
   void on_konsumenKombo_customContextMenuRequested(const QPoint &p);

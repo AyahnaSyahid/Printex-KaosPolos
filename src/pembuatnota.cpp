@@ -8,6 +8,7 @@
 #include <QSqlQueryModel>
 #include <QMessageBox>
 #include <QCompleter>
+#include <QItemSelectionModel>
 
 #include "include/kaospoloswindow.h"
 #include "include/dockkonsumen.h"
@@ -24,6 +25,8 @@ PembuatNota::PembuatNota(KaosPolosWindow *kp, QWidget *parent)
       konsumenModel(new QSqlQueryModel(this)), 
       QDialog(parent) {
   ui->setupUi(this);
+  connect(ui->tambahButton, &QPushButton::clicked, this, &PembuatNota::addOrder);
+  connect(ui->hapusButton, &QPushButton::clicked, this, &PembuatNota::removeOrder);
   auto menu = new QMenu(this);
   auto bay = menu->addAction("Bayar");
   auto sim = menu->addAction("Simpan");
@@ -77,6 +80,11 @@ PembuatNota::PembuatNota(KaosPolosWindow *kp, QWidget *parent)
   if (dp) {
     connect(this, &PembuatNota::penjualanSaved, dp, &DockProduk::refreshModel);
   }
+
+  connect(ui->notaTable->selectionModel(), &QItemSelectionModel::selectionChanged, 
+  [this](){
+    ui->hapusButton->setEnabled(ui->notaTable->selectionModel()->hasSelection());
+  });
 }
 
 PembuatNota::~PembuatNota() { delete ui; }
@@ -103,10 +111,20 @@ void PembuatNota::addOrder() {
   nid->open();
 }
 
+void PembuatNota::removeOrder() {
+  if (ui->notaTable->selectionModel()->hasSelection()) {
+    auto indexes = ui->notaTable->selectionModel()->selectedRows(1);
+    std::sort(indexes.begin(), indexes.end(), [](const QModelIndex&a, const QModelIndex& b) { return a.row() > b.row(); });
+    for(auto mi : indexes) {
+      sm->removeRow(mi.row());
+    }
+  }
+}
+
 void PembuatNota::on_notaTable_customContextMenuRequested(const QPoint &p)
 {
   QMenu nMenu;
-  QAction* add = nMenu.addAction("Buat");
+  QAction* add = nMenu.addAction("Tambah");
   connect(add, &QAction::triggered, this, &PembuatNota::addOrder);
   
   nMenu.exec(ui->notaTable->viewport()->mapToGlobal(p));
