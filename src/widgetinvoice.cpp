@@ -32,9 +32,13 @@ void WidgetInvoice::setDatabase(Database *b) {
 }
 
 void WidgetInvoice::on_unpaidInvoiceView_customContextMenuRequested(const QPoint& p) {
-  QMenu m;
+  QMenu context;
+  auto sm = ui->unpaidInvoiceView->selectionModel();
+  auto lihat = context.addMenu("Atur");
+  auto actDataPenjualan = lihat->addAction("Data Penjualan");
+  auto actDataPembayaran = lihat->addAction("Data Pembayaran");
+  context.exec(ui->unpaidInvoiceView->viewport()->mapToGlobal(p));
 }
-
 
 // UnpaidModel
 WidgetInvoice::UnpaidModel::UnpaidModel(QObject *parent)
