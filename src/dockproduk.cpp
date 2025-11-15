@@ -23,11 +23,14 @@ DockProduk::DockProduk(Database *_d, KaosPolosWindow *parent)
   produkView->setObjectName("produkView");
   produkView->setHorizontalScrollMode(produkView->ScrollPerPixel);
   produkView->setVerticalScrollMode(produkView->ScrollPerPixel);
+  produkView->setSelectionBehavior(QAbstractItemView::SelectRows);
   produkView->hideColumn(0);
   produkView->hideColumn(4);
   produkView->hideColumn(5);
   produkView->horizontalHeader()->setStretchLastSection(true);
   produkView->verticalHeader()->hide();
+  produkView->verticalHeader()->setMinimumSectionSize(18);
+  produkView->verticalHeader()->setDefaultSectionSize(18);
   produkView->setSortingEnabled(true);
 
   pm->setHeaderData(1, Qt::Horizontal, "Nama");
@@ -95,6 +98,7 @@ void DockProduk::hookTriggered(const QString &p, const QString &i) {
 
 void DockProduk::displayProduk(const QString &nama) {
   ProdukInfo *pinf = new ProdukInfo(nama, db, this);
+  connect(pinf, &ProdukInfo::produkUpdated, this, &DockProduk::produkUpdated);
   connect(pinf, &ProdukInfo::produkUpdated, this, &DockProduk::refreshModel);
   pinf->setAttribute(Qt::WA_DeleteOnClose);
   pinf->open();

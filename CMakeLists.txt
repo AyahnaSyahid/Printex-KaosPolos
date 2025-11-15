@@ -63,6 +63,8 @@ add_executable(KaosPolos src/main.cpp
                          src/ui/editorpenjualan.ui
                          src/include/editorpenjualan.h
                          src/editorpenjualan.cpp
+                         src/include/askbox.h
+                         src/askbox.cpp
                          )
 
 target_include_directories(KaosPolos PRIVATE src/include

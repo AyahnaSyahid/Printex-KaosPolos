@@ -27,6 +27,7 @@ class DockProduk : public QDockWidget {
 
  signals:
   void produkAdded(const QString &name, bool ok);
+  void produkUpdated();
 
  private:
   QTableView *produkView;

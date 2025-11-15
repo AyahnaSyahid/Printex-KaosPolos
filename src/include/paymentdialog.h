@@ -2,6 +2,7 @@
 #define PAYMENTDIALOG_H
 
 #include <QDialog>
+#include <QSqlRecord>
 
 namespace Ui {
   class PaymentDialog;
@@ -31,10 +32,7 @@ private:
   void invoiceNotFound();
   Ui::PaymentDialog* ui;
   Database* db;
-  int invoiceId;
-  int tLunas;
-  int tSisa;
-  int tTotal;
+  QSqlRecord record;
 };
 
 #endif

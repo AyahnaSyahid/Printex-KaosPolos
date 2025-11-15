@@ -3,6 +3,7 @@
 #include "database.h"
 
 #include <QSqlQuery>
+#include <QSqlError>
 #include <QMessageBox>
 
 
@@ -15,6 +16,7 @@ EditorPenjualan::EditorPenjualan(int pid, Database *b, QWidget *parent)
     SELECT Produk.nama AS namaProduk,
            Produk.stock AS produkStock,
            Penjualan.qty AS penjualanQty,
+           Penjualan.id AS penjualanId,
            Penjualan.harga_jual AS penjualanPrice,
            Penjualan.harga_total AS penjualanTotal,
            Produk.id AS produkId,
@@ -54,13 +56,18 @@ void EditorPenjualan::reject() {
     bt = m.button(QMessageBox::No);
     bt->setText("Tidak");
     if (m.exec() == QMessageBox::Yes) {
-      return QDialog::reject();
+      ui->qtyBox->setValue(record.value("penjualanQty").toInt());
+      ui->priceBox->setValue(record.value("penjualanPrice").toInt());
+      return reject();
+    } else {
+      return;
     }
   }
+  QDialog::reject();
 }
 
 bool EditorPenjualan::isModified() const {
-  return ui->qtyBox->value() != record.value("penjualanQty").toInt() &&
+  return ui->qtyBox->value() != record.value("penjualanQty").toInt() ||
          ui->priceBox->value() != record.value("penjualanPrice").toInt();
 };
 
@@ -81,8 +88,17 @@ void EditorPenjualan::on_simpanButton_clicked() {
         QMessageBox::information(this, "Dibatalkan", "Operasi perubahhan data penjualan dibatalkan");
         ui->qtyBox->setValue(record.value("penjualanQty").toInt());
         ui->priceBox->setValue(record.value("penjualanPrice").toInt());
-        reject();
+        return reject();
       }
+    }
+  } else if (lastTotal > newQty * newPrice) { // nilai penjualan berkurang
+    int selisih_harga = record.value("penjualanHargaTotal").toInt() - (newQty * newPrice);
+    if (record.value("invoiceUnpaid").toInt() == 0 || record.value("invoiceUnpaid").toInt() < selisih_harga) { // akan terjadi kelebihan bayar jika dilanjutkan
+      QMessageBox::information(this, "Tidak dapat dilakukan", 
+        "Kelebihan bayar tidak dapat dihindari, hapus sebagian data pembayaran yang telah dilakukan");
+      ui->qtyBox->setValue(record.value("penjualanQty").toInt());
+      ui->priceBox->setValue(record.value("penjualanPrice").toInt());
+      return reject();
     }
   }
 
@@ -92,11 +108,47 @@ void EditorPenjualan::on_simpanButton_clicked() {
     UPDATE Penjualan 
       SET ( harga_jual, qty, harga_total, modified) 
         = ( :hj, :qt, :ht, datetime('now', 'localtime'))
+      WHERE id = :pid
     )-");
   q.bindValue(":hj", ui->priceBox->value());
   q.bindValue(":qt", ui->qtyBox->value());
   q.bindValue(":ht", ui->qtyBox->value() * ui->priceBox->value());
+  q.bindValue(":pid", record.value("penjualanId"));
+  
+  if(!q.exec()) {
+    QMessageBox::information(this, "Gagal Update", QString("Database Error:\n%1").arg(q.lastError().text()));
+    return;
+  }
 
+  int newTotal = record.value("invoiceTotalValue").toInt() - record.value("penjualanTotal").toInt() + (newPrice * newQty);
+  int newUnpaid = newTotal - record.value("invoicePaid").toInt();
+  if (newUnpaid < 0) {
+    QMessageBox::information(this, "Tidak dapat dilakukan", 
+        "Kelebihan bayar tidak dapat dihindari, hapus sebagian data pembayaran yang telah dilakukan");
+      ui->qtyBox->setValue(record.value("penjualanQty").toInt());
+      ui->priceBox->setValue(record.value("penjualanPrice").toInt());
+      return reject();
+  }
+  QSqlQuery qi;
+  qi.prepare(R"-(
+    UPDATE Invoice 
+    SET (total_value, unpaid, modified) = (:tv, :up, datetime('now', 'localtime'))
+    WHERE id = :iid )-");
+  qi.bindValue(":tv", newTotal);
+  qi.bindValue(":up", newUnpaid);
+  qi.bindValue(":iid", record.value("invoiceId"));
+
+  if(!qi.exec()) {
+    QMessageBox::information(this, "Gagal Update", QString("Database Error:\n%1").arg(qi.lastError().text()));
+    return;
+  }
+
+  if(!tr.commit()) {
+    QMessageBox::information(this, "Gagal Update", "Tidak dapat menerapkan perubahan kedalam database");
+    return;
+  }
+  emit penjualanUpdated();
+  accept();
 };
 
 EditorPenjualan::AskBox::AskBox(const QString& tt, const QString& det, QWidget *parent)

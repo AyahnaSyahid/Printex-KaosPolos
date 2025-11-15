@@ -27,6 +27,7 @@ class DockKonsumen : public QDockWidget {
 
  signals:
   void konsumenAdded();
+  void konsumenModified();
 
  private:
   Database *db;

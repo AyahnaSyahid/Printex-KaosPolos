@@ -22,15 +22,18 @@ KaosPolosWindow::KaosPolosWindow(Database *d, QWidget *p)
   if (wp) {
     wp->setKaosPolosWindow(this);
     wp->setDatabase(db);
+    connect(dk, &DockKonsumen::konsumenModified, wp, &WidgetPenjualan::refreshData);
+    connect(dp, &DockProduk::produkUpdated, wp, &WidgetPenjualan::refreshData);
   }
   
   WidgetInvoice *wi = qobject_cast<WidgetInvoice*>(ui->widgetInvoice);
   if(wi) {
     wi->setDatabase(db);
+    connect(dk, &DockKonsumen::konsumenModified, wi, &WidgetInvoice::refreshData);
   }
 }
 
-KaosPolosWindow::~KaosPolosWindow() {}
+KaosPolosWindow::~KaosPolosWindow() { delete ui; }
 
 void KaosPolosWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *it,
                                                       int column)

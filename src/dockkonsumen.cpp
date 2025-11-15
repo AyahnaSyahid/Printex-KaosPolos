@@ -31,6 +31,8 @@ DockKonsumen::DockKonsumen(Database* _d, KaosPolosWindow* k)
   konsumenView->horizontalHeader()->hideSection(4);
   konsumenView->horizontalHeader()->hideSection(5);
   konsumenView->horizontalHeader()->setStretchLastSection(true);
+  konsumenView->verticalHeader()->setMinimumSectionSize(18);
+  konsumenView->verticalHeader()->setDefaultSectionSize(18);
   konsumenView->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
   konsumenView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
   konsumenView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -96,6 +98,7 @@ void DockKonsumen::editKonsumenHandler() {
     if(tr.commit()) {
       ki->accept();
       konsumenModel->refresh();
+      emit konsumenModified();
       return;
     }
   }
