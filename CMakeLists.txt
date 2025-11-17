@@ -68,6 +68,8 @@ add_executable(KaosPolos src/main.cpp
                          src/ui/editorinvoice.ui
                          src/include/editorinvoice.h
                          src/editorinvoice.cpp
+                         src/invoiceprinter.cpp
+                         src/include/invoiceprinter.h
                          )
 
 target_include_directories(KaosPolos PRIVATE src/include

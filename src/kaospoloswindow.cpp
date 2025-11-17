@@ -8,6 +8,7 @@
 #include "widgetpenjualan.h"
 #include "widgetinvoice.h"
 #include "ui/ui_kaospoloswindow.h"
+#include "invoiceprinter.h"
 
 KaosPolosWindow::KaosPolosWindow(Database *d, QWidget *p)
     : ui(new Ui::KaosPolosWindow), db(d), QMainWindow(p) {
@@ -32,6 +33,8 @@ KaosPolosWindow::KaosPolosWindow(Database *d, QWidget *p)
     wi->setDatabase(db);
     connect(dk, &DockKonsumen::konsumenModified, wi, &WidgetInvoice::refreshData);
   }
+  
+  auto invoicePrinter(this);
 }
 
 KaosPolosWindow::~KaosPolosWindow() { delete ui; }

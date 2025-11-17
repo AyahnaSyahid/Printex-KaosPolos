@@ -15,8 +15,9 @@ public slots:
   void printInvoice(int invoiceId);
   
 signals:
+  void printerBegin(const QString& invId);
+  void printerEnd();
   void printerFailed(const QString& message);
-  
 };
 
 #endif

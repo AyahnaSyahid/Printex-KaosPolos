@@ -118,6 +118,7 @@ void PembuatNota::removeOrder() {
     for(auto mi : indexes) {
       sm->removeRow(mi.row());
     }
+    updateGrandTotal();
   }
 }
 

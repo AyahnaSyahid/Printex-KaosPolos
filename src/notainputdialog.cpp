@@ -14,10 +14,12 @@ NotaInputDialog::NotaInputDialog(QWidget *parent)
   ui->setupUi(this);
   produkModel->setQuery("SELECT * FROM Produk");
   auto compView = new QTableView();
+  ui->comboBox->blockSignals(true);
   ui->comboBox->setModel(produkModel);
   ui->comboBox->setModelColumn(1);
   ui->comboBox->setView(compView);
   ui->comboBox->setCurrentIndex(-1);
+  ui->comboBox->blockSignals(false);
   // comp->setModel(produkModel);
   // comp->setCompletionColumn(1);
   // comp->setCaseSensitivity(Qt::CaseInsensitive);
@@ -35,6 +37,11 @@ NotaInputDialog::NotaInputDialog(QWidget *parent)
   compView->setMinimumWidth(hh->sectionSize(1) + hh->sectionSize(2));
   compView->setSelectionBehavior(compView->SelectRows);
   hh->setStretchLastSection(true);
+  
+  auto cpl = new QCompleter(this);
+  ui->comboBox->setCompleter(cpl);
+  cpl->setModel(ui->comboBox->model());
+  cpl->setCompletionColumn(1);
 }
 
 NotaInputDialog::~NotaInputDialog() { delete ui; }
@@ -72,9 +79,8 @@ void NotaInputDialog::on_comboBox_currentIndexChanged(int i)
   }
   if (rc.value("stock").toInt() < 1 && i != -1) {
     QMessageBox::information(this, "Stok Habis", "Stok produk ini telah habis");
-    ui->comboBox->setCurrentIndex(-1);
   }
-  ui->simpanButton->setDisabled(i < 0);
+  ui->simpanButton->setDisabled(rc.value("stock").toInt() < 1);
   ui->spinBox->setMaximum(rc.value("stock").toInt());
   ui->spinBox->setValue(1);
   ui->spinBox2->setMinimum(rc.value("base_price").toInt());

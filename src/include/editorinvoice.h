@@ -2,7 +2,7 @@
 #define EDITORINVOICE_H
 
 #include <QDialog>
-#include <QIdentityProxyModel>
+#include <QSqlRecord>
 
 namespace Ui
 {
@@ -11,33 +11,38 @@ namespace Ui
 
 class KaosPolosWindow;
 class Database;
+class QStandardItemModel;
 class EditorInvoice : public QDialog
 {
   Q_OBJECT
 public:
-  class ModelProxy;
   explicit EditorInvoice(int invoiceId, KaosPolosWindow *k, QWidget *parent=nullptr);
   ~EditorInvoice();
 
 private slots:
   void invoiceNotFound();
+  void fetchRecords();
+  void initModelRecords(); // bisa digunakan untuk mereset
+  void editPenjualan(int id);
+  void on_jualView_doubleClicked(const QModelIndex& ix);
+  void on_jualView_customContextMenuRequested(const QPoint &p);
+  void hapusPenjualan(int pid);
+
+public slots:
 
 signals:
   void produkUpdated();
   void paymentUpdated();
 
 private:
+  QStandardItemModel *penjualanModel;
+  QStandardItemModel *pembayaranModel;
+  QList<QSqlRecord> penjualan;
+  QList<QSqlRecord> pembayaran;
+  QSqlRecord invRec;
   Ui::EditorInvoice *ui;
   Database *db;
   KaosPolosWindow *kpw;
-};
-
-class EditorInvoice::ModelProxy : public QIdentityProxyModel
-{
-  public:
-    explicit ModelProxy(QObject *parent) : QIdentityProxyModel(parent) {}
-    virtual QVariant data(const QModelIndex &mi, int role=Qt::DisplayRole) const = 0;
-    virtual Qt::ItemFlags flags(const QModelIndex &mi) const = 0;
 };
 
 #endif

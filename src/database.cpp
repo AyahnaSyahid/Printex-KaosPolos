@@ -690,7 +690,7 @@ const DatabaseResult Database::removePenjualan(quint64 pjid, bool updateInvoice)
       return res;
     }
     q.prepare("SELECT * FROM Invoice WHERE id = ?");
-    q.addBindValue("invoice_id");
+    q.addBindValue(invoice_id);
     if (!q.exec() || !q.next()) {
       if (q.lastError().isValid()) {
         res.errorMessage = q.lastError().text();
@@ -939,13 +939,13 @@ QList<int> Database::penjualanUntukNota(int nid) const {
   QSqlQuery q;
   q.prepare("SELECT * FROM Penjualan WHERE invoice_id = ?");
   q.addBindValue(nid);
-  QList<int> penjualanIds;
+  QList<int> pids;
   if(!q.exec()) {
     qDebug() << q.lastError().text();
-    return penjualanIds;
+    return pids;
   }
   while (q.next()) {
-    penjualanIds << q.value("id").toInt();
+    pids << q.value("id").toInt();
   }
-  return penjualanIds;
+  return pids;
 }

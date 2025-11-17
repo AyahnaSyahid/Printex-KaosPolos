@@ -74,11 +74,11 @@ void WidgetPenjualan::on_harianView_customContextMenuRequested(const QPoint& p) 
   auto at = ui->harianView->indexAt(p);
   if(at.isValid()) {
     auto sortModel = dynamic_cast<ModelAdapter*>(ui->harianView->model());
-    auto realIx = sortModel->mapToSource(at);
-    connect(editAct, &QAction::triggered, [this, &realIx](){ editPenjualan(realIx.row()); });
-    connect(hapusAct, &QAction::triggered, [this, &realIx](){ hapusPenjualan(realIx.row()); });
+    auto realIx = sortModel->mapToSource(at).siblingAtColumn(7);
+    connect(editAct, &QAction::triggered, [this, &realIx](){ editPenjualan(realIx.data().toInt()); });
+    connect(hapusAct, &QAction::triggered, [this, &realIx](){ hapusPenjualan(realIx.data().toInt()); });
+    menuPenjualan.exec(ui->harianView->viewport()->mapToGlobal(p));
   }
-  menuPenjualan.exec(ui->harianView->viewport()->mapToGlobal(p));
 }
 
 void WidgetPenjualan::refreshData() {
@@ -88,9 +88,9 @@ void WidgetPenjualan::refreshData() {
   }
 }
 
-void WidgetPenjualan::editPenjualan(int r) {
-  auto sm = findChild<QSqlQueryModel*>("sqlModel");
-  auto ep = new EditorPenjualan(sm->record(r).value("penjualan_id").toInt(), kpw->database(), kpw);
+void WidgetPenjualan::editPenjualan(int pid) {
+  // auto sm = findChild<QSqlQueryModel*>("sqlModel");
+  auto ep = new EditorPenjualan(pid, kpw->database(), kpw);
   WidgetInvoice* wi = kpw->findChild<WidgetInvoice*>("widgetInvoice");
   connect(ep, &EditorPenjualan::penjualanUpdated, this, &WidgetPenjualan::refreshData);
   if (wi) {
@@ -101,40 +101,47 @@ void WidgetPenjualan::editPenjualan(int r) {
   ep->open();
 }
 
-void WidgetPenjualan::hapusPenjualan(int r) {
-  auto sm = findChild<QSqlQueryModel*>("sqlModel");
-  auto pid = sm->record(r).value("penjualan_id").toInt();
-  auto invId = sm->record(r).value("Invoice ID").toInt();
+bool WidgetPenjualan::hapusPenjualan(int pid) {
+  
   auto db = kpw->database();
-  auto pids = db->penjualanUntukNota(invId);
-
   Transaction tr;
+  
+  QSqlQuery q;
+  q.prepare("SELECT * FROM Penjualan WHERE id = ?");
+  q.addBindValue(pid);
+  q.exec();
+  q.next();
+  auto rc = q.record();
+  auto invId = rc.value("invoice_id").toInt();
+  auto pids = db->penjualanUntukNota(invId);
   
   QSqlQuery dp;
   dp.prepare("DELETE FROM Penjualan WHERE id = ?");
   dp.addBindValue(pid);
   
   if(!dp.exec()) {
-    QMessageBox::information(this, "Gagal menghapus", "Penjualan tidak dapat dihapuskan");
-    return;
+    QMessageBox::information(this, "Gagal menghapus", "Penjualan tidak dapat dihapus");
+    return false;
   }
 
   // Kembalikan Stock
   QSqlQuery srep;
   srep.prepare("UPDATE Produk SET stock = stock + :st WHERE id = :prid");
-  srep.bindValue(":st", sm->record(r).value("Qty"));
-  srep.bindValue(":prid", sm->record(r).value("produk_id"));
+  srep.bindValue(":st", rc.value("qty"));
+  srep.bindValue(":prid", rc.value("produk_id"));
   
   if (!srep.exec()) {
     QMessageBox::information(this, "Update Gagal", "Gagal menambahkan kembali stock produk");
-    return ;
+    return false;
   }
-
-  if (pids.size() <= 1) {
+  
+  // qDebug() << "Penjualan ID Count" << pids.count();
+  
+  if (pids.count() == 1) {
     AskBox ab("Konfirmasi", "Nota terkait penjualan ini akan ikut terhapus.\n"
               "Hapus dan lanjutkan ?", this);
     if (ab.exec() == QMessageBox::No) { 
-      return;
+      return false;
     }
 
     // Delete payments
@@ -144,7 +151,7 @@ void WidgetPenjualan::hapusPenjualan(int r) {
     
     if(!pdel.exec()) {
       QMessageBox::information(this, "Gagal menghapus", "Pembayaran terkait tidak dapat dihapuskan");
-      return;
+      return false;
     }
 
     // Delete invoice
@@ -154,42 +161,46 @@ void WidgetPenjualan::hapusPenjualan(int r) {
 
     if(!iu.exec()) {
       QMessageBox::information(this, "Gagal menghapus", "Nota terkait tidak dapat dihapuskan");
-      return;  
+      return false;  
     }
-
+    
   } else {
+  
     // just Update Invoice, we Dont need to delete
     QSqlQuery chk;
     chk.prepare("SELECT * FROM Invoice WHERE id = ?");
     chk.addBindValue(invId);
     chk.exec() && chk.next();
     auto irec = chk.record();
-    if (irec.value("unpaid").toInt() < sm->record(r).value("Nilai").toInt()) {
+    
+    if (irec.value("unpaid").toInt() < rc.value("harga_total").toInt()) {
       QMessageBox::information(this, "Tidak dapat dilakukan", 
         "Kelebihan bayar tidak dapat dihindari, hapus sebagian data pembayaran yang telah dilakukan");
-      return ;
+      return false;
     }
 
     QSqlQuery cup;
-    cup.prepare("UPDATE Invoice SET unpaid = unpaid - :up WHERE id = :inv");
-    cup.bindValue(":up", sm->record(r).value("Nilai"));
+    cup.prepare("UPDATE Invoice SET (unpaid, total_value) = (unpaid - :up, total_value - :up) WHERE id = :inv");
+    cup.bindValue(":up", rc.value("harga_total"));
     cup.bindValue(":inv", invId);
     if(!cup.exec()) {
       QMessageBox::information(this, "Gagal Menghapus", "Tidak dapat mengupdated data Invoice");
-      return;
+      return false;
     }
   }
 
   if(!tr.commit()) {
     QMessageBox::information(this, "Gagal Menghapus", "Kegagalan terjadi saat hendak commit transaksi");
-    return ;
+    return false;
   }
-
+  
   WidgetInvoice* wi = kpw->findChild<WidgetInvoice*>("widgetInvoice");
   if (wi) {
     wi->refreshData();
   }
   refreshData();
+  emit notaUpdated();
+  return true;
 }
 
 void WidgetPenjualan::setKaosPolosWindow(KaosPolosWindow *k) {

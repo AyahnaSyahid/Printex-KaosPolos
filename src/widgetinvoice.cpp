@@ -3,6 +3,7 @@
 #include "database.h"
 #include "kaospoloswindow.h"
 #include "editorinvoice.h"
+#include "invoiceprinter.h"
 
 #include <QSqlQueryModel>
 #include <QSqlQuery>
@@ -37,13 +38,17 @@ void WidgetInvoice::on_unpaidInvoiceView_customContextMenuRequested(const QPoint
   QMenu context;
   auto sm = ui->unpaidInvoiceView->selectionModel();
   auto lihat = context.addAction("Edit");
+  auto print = context.addAction("Print");
+  print->setDisabled(true);
   lihat->setDisabled(true);
 
   if (sm->hasSelection()) {
     if (sm->selectedRows().size() == 1) {
       lihat->setEnabled(true);
+      print->setEnabled(true);
       int iid = sm->selectedIndexes()[0].siblingAtColumn(0).data(Qt::EditRole).toInt();
       connect(lihat, &QAction::triggered, [this, &iid](){ editInvoice(iid); });
+      connect(print, &QAction::triggered, [this, &iid](){ kpw->findChild<InvoicePrinter*>("invoicePrinter")->printInvoice(iid);});
     }
   }
   context.exec(ui->unpaidInvoiceView->viewport()->mapToGlobal(p));
