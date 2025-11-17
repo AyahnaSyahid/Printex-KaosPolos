@@ -1,6 +1,8 @@
 #include "widgetinvoice.h"
 #include "ui/ui_widgetinvoice.h"
 #include "database.h"
+#include "kaospoloswindow.h"
+#include "editorinvoice.h"
 
 #include <QSqlQueryModel>
 #include <QSqlQuery>
@@ -34,9 +36,16 @@ void WidgetInvoice::setDatabase(Database *b) {
 void WidgetInvoice::on_unpaidInvoiceView_customContextMenuRequested(const QPoint& p) {
   QMenu context;
   auto sm = ui->unpaidInvoiceView->selectionModel();
-  auto lihat = context.addMenu("Atur");
-  auto actDataPenjualan = lihat->addAction("Data Penjualan");
-  auto actDataPembayaran = lihat->addAction("Data Pembayaran");
+  auto lihat = context.addAction("Edit");
+  lihat->setDisabled(true);
+
+  if (sm->hasSelection()) {
+    if (sm->selectedRows().size() == 1) {
+      lihat->setEnabled(true);
+      int iid = sm->selectedIndexes()[0].siblingAtColumn(0).data(Qt::EditRole).toInt();
+      connect(lihat, &QAction::triggered, [this, &iid](){ editInvoice(iid); });
+    }
+  }
   context.exec(ui->unpaidInvoiceView->viewport()->mapToGlobal(p));
 }
 
@@ -87,4 +96,11 @@ QVariant WidgetInvoice::UnpaidModel::data(const QModelIndex& mi, int role) const
     }
   }
   return mapToSource(mi).data(role);
+}
+
+void WidgetInvoice::editInvoice(int i) {
+  auto edi = new EditorInvoice(i, kpw, kpw);
+  connect(edi, &QDialog::accepted, edi, &QObject::deleteLater);
+  connect(edi, &QDialog::rejected, edi, &QObject::deleteLater);
+  edi->open();
 }

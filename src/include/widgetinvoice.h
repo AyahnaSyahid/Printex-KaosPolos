@@ -9,6 +9,7 @@ namespace Ui {
 }
 
 class Database;
+class KaosPolosWindow;
 class WidgetInvoice : public QWidget
 {
   Q_OBJECT
@@ -19,16 +20,19 @@ public:
   ~WidgetInvoice();
   
   void setDatabase(Database *base);
-
+  void setKaosPolosWindow(KaosPolosWindow *p) { kpw = p; }
+  
 public slots:
   void refreshData();
 
 private slots:
   void on_unpaidInvoiceView_customContextMenuRequested(const QPoint& p);
+  void editInvoice(int invoiceId);
 
 private:
   Ui::WidgetInvoice* ui;
   Database* db;
+  KaosPolosWindow* kpw;
 };
 
 class WidgetInvoice::UnpaidModel : public QSortFilterProxyModel

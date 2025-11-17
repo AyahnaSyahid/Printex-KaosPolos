@@ -28,6 +28,7 @@ KaosPolosWindow::KaosPolosWindow(Database *d, QWidget *p)
   
   WidgetInvoice *wi = qobject_cast<WidgetInvoice*>(ui->widgetInvoice);
   if(wi) {
+    wi->setKaosPolosWindow(this);
     wi->setDatabase(db);
     connect(dk, &DockKonsumen::konsumenModified, wi, &WidgetInvoice::refreshData);
   }
