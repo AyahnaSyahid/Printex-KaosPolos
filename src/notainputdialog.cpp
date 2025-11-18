@@ -1,5 +1,6 @@
 #include "notainputdialog.h"
 #include "ui/ui_notainputdialog.h"
+#include "stockmodel.h"
 #include <QSqlQueryModel>
 #include <QSqlQuery>
 #include <QMessageBox>
@@ -8,19 +9,18 @@
 #include <QTableView>
 #include <QHeaderView>
 
-NotaInputDialog::NotaInputDialog(QWidget *parent)
-  : ui(new Ui::NotaInputDialog), produkModel(new QSqlQueryModel(this)), QDialog(parent) 
+NotaInputDialog::NotaInputDialog(StockModel *sm, QWidget *parent)
+  : ui(new Ui::NotaInputDialog), stockModel(sm), QDialog(parent) 
 {
   ui->setupUi(this);
-  produkModel->setQuery("SELECT * FROM Produk");
   auto compView = new QTableView();
   ui->comboBox->blockSignals(true);
-  ui->comboBox->setModel(produkModel);
+  ui->comboBox->setModel(stockModel);
   ui->comboBox->setModelColumn(1);
   ui->comboBox->setView(compView);
   ui->comboBox->setCurrentIndex(-1);
   ui->comboBox->blockSignals(false);
-  // comp->setModel(produkModel);
+  // comp->setModel(stockModel);
   // comp->setCompletionColumn(1);
   // comp->setCaseSensitivity(Qt::CaseInsensitive);
   // comp->setPopup(compView);
@@ -73,7 +73,7 @@ void NotaInputDialog::on_simpanButton_clicked() {
 
 void NotaInputDialog::on_comboBox_currentIndexChanged(int i)
 {
-  auto rc = produkModel->record(i);
+  auto rc = stockModel->record(i);
   if (rc.isEmpty()) {
     return;
   }

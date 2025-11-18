@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>InvoiceBrowser</class>
+ <widget class="QDialog" name="InvoiceBrowser">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>797</width>
+    <height>483</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Pencarian Invoice</string>
+  </property>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

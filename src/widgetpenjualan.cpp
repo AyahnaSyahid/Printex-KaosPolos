@@ -6,6 +6,7 @@
 #include "kaospoloswindow.h"
 #include "editorpenjualan.h"
 #include "askbox.h"
+#include "dockproduk.h"
 
 #include <QSqlQuery>
 #include <QSqlQueryModel>
@@ -194,10 +195,8 @@ bool WidgetPenjualan::hapusPenjualan(int pid) {
     return false;
   }
   
-  WidgetInvoice* wi = kpw->findChild<WidgetInvoice*>("widgetInvoice");
-  if (wi) {
-    wi->refreshData();
-  }
+  kpw->findChild<WidgetInvoice*>("widgetInvoice")->refreshData();
+  kpw->findChild<DockProduk*>("dockProduk")->refreshModel();
   refreshData();
   emit notaUpdated();
   return true;

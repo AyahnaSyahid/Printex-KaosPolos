@@ -3,6 +3,7 @@
 #include "database.h"
 #include "kaospoloswindow.h"
 #include "editorinvoice.h"
+#include "paymentdialog.h"
 #include "invoiceprinter.h"
 
 #include <QSqlQueryModel>
@@ -37,6 +38,8 @@ void WidgetInvoice::setDatabase(Database *b) {
 void WidgetInvoice::on_unpaidInvoiceView_customContextMenuRequested(const QPoint& p) {
   QMenu context;
   auto sm = ui->unpaidInvoiceView->selectionModel();
+  auto bayar = context.addAction("Bayar");
+  context.addSeparator();
   auto lihat = context.addAction("Edit");
   auto print = context.addAction("Print");
   print->setDisabled(true);
@@ -49,9 +52,19 @@ void WidgetInvoice::on_unpaidInvoiceView_customContextMenuRequested(const QPoint
       int iid = sm->selectedIndexes()[0].siblingAtColumn(0).data(Qt::EditRole).toInt();
       connect(lihat, &QAction::triggered, [this, &iid](){ editInvoice(iid); });
       connect(print, &QAction::triggered, [this, &iid](){ kpw->findChild<InvoicePrinter*>("invoicePrinter")->printInvoice(iid);});
+      connect(bayar, &QAction::triggered, [this, &iid](){ bayarInvoice(iid); });
     }
   }
   context.exec(ui->unpaidInvoiceView->viewport()->mapToGlobal(p));
+}
+
+void WidgetInvoice::bayarInvoice(int invId) {
+  if(!kpw) return ;
+  auto pd = new PaymentDialog(invId, kpw->database(), kpw);
+  connect(pd, &PaymentDialog::paymentSuccess, this, &WidgetInvoice::refreshData);
+  connect(pd, &QDialog::accepted, pd, &QObject::deleteLater);
+  connect(pd, &QDialog::rejected, pd, &QObject::deleteLater);
+  pd->open();
 }
 
 // UnpaidModel
@@ -61,15 +74,15 @@ WidgetInvoice::UnpaidModel::UnpaidModel(QObject *parent)
   auto qm = new QSqlQueryModel(this);
   qm->setObjectName("unpaidQueryModel");
   qm->setQuery(R"-(
-    SELECT Invoice.id AS [Invoice ID],
-       Konsumen.nama AS Konsumen,
-       Invoice.total_value AS Total,
-       Invoice.unpaid AS Sisa,
-       COALESCE(date(Invoice.last_payment), '') AS [Tgl Bayar]
-  FROM Invoice
-       INNER JOIN
-       Konsumen ON Invoice.konsumen_id = Konsumen.id
- WHERE Invoice.unpaid > 0;
+  SELECT Invoice.id AS [Invoice ID],
+         Konsumen.nama AS Konsumen,
+         Invoice.total_value AS Total,
+         Invoice.unpaid AS Sisa,
+         COALESCE(date(Invoice.last_payment), '') AS [Tgl Bayar]
+    FROM Invoice
+         INNER JOIN
+         Konsumen ON Invoice.konsumen_id = Konsumen.id
+   WHERE Invoice.unpaid > 0;
   )-");
   setSourceModel(qm);
 }
@@ -108,4 +121,8 @@ void WidgetInvoice::editInvoice(int i) {
   connect(edi, &QDialog::accepted, edi, &QObject::deleteLater);
   connect(edi, &QDialog::rejected, edi, &QObject::deleteLater);
   edi->open();
+}
+
+void WidgetInvoice::on_cariButton_clicked() {
+  
 }

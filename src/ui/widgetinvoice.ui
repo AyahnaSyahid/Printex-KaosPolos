@@ -61,7 +61,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="cariButton">
           <property name="text">
            <string>Cari Invoice</string>
           </property>

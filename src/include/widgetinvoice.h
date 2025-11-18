@@ -27,7 +27,9 @@ public slots:
 
 private slots:
   void on_unpaidInvoiceView_customContextMenuRequested(const QPoint& p);
+  void on_cariButton_clicked();
   void editInvoice(int invoiceId);
+  void bayarInvoice(int invoiceId);
 
 private:
   Ui::WidgetInvoice* ui;

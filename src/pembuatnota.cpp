@@ -17,11 +17,13 @@
 #include "ui/ui_pembuatnota.h"
 #include "notainputdialog.h"
 #include "paymentdialog.h"
+#include "stockmodel.h"
 
 PembuatNota::PembuatNota(KaosPolosWindow *kp, QWidget *parent)
     : ui(new Ui::PembuatNota), 
       kpw(kp), 
-      sm(new PembuatNotaModel(this)), 
+      sm(new PembuatNotaModel(this)),
+      stockModel(new StockModel(this)),
       konsumenModel(new QSqlQueryModel(this)), 
       QDialog(parent) {
   ui->setupUi(this);
@@ -103,7 +105,7 @@ void PembuatNota::on_konsumenKombo_customContextMenuRequested(const QPoint &p) {
 }
 
 void PembuatNota::addOrder() {
-  NotaInputDialog *nid = new NotaInputDialog(this);
+  NotaInputDialog *nid = new NotaInputDialog(stockModel, this);
   connect(nid, &NotaInputDialog::doneEditing, this, &PembuatNota::processInputDialog);
   // connect(nid, &NotaInputDialog::accepted, nid, &NotaInputDialog::deleteLater);
   // nid deleted on receiverSlot automaticaly
@@ -116,6 +118,7 @@ void PembuatNota::removeOrder() {
     auto indexes = ui->notaTable->selectionModel()->selectedRows(1);
     std::sort(indexes.begin(), indexes.end(), [](const QModelIndex&a, const QModelIndex& b) { return a.row() > b.row(); });
     for(auto mi : indexes) {
+      stockModel->simpanProduk(mi.siblingAtColumn(1).data().toString(), mi.siblingAtColumn(2).data(NumberValueRole).toInt());
       sm->removeRow(mi.row());
     }
     updateGrandTotal();
@@ -125,9 +128,16 @@ void PembuatNota::removeOrder() {
 void PembuatNota::on_notaTable_customContextMenuRequested(const QPoint &p)
 {
   QMenu nMenu;
-  QAction* add = nMenu.addAction("Tambah");
+  QAction *add = nMenu.addAction("Tambah");
+  if (ui->notaTable->selectionModel()->hasSelection()) {
+    auto selmod = ui->notaTable->selectionModel();
+    auto selrow = selmod->selectedRows();
+    if (selrow.count()) {
+      auto hap = nMenu.addAction("Hapus");
+      connect(hap, &QAction::triggered, this, &PembuatNota::removeOrder);
+    }
+  }  
   connect(add, &QAction::triggered, this, &PembuatNota::addOrder);
-  
   nMenu.exec(ui->notaTable->viewport()->mapToGlobal(p));
 }
 
@@ -158,12 +168,14 @@ void PembuatNota::processInputDialog() {
   
   QList<QStandardItem*> row {nomorItem, produkItem, qtyItem, priceItem, totalItem}; 
   
-  sm->appendRow(row);
-  
-  updateGrandTotal();
-  
-  nid->accept();
-  nid->deleteLater();
+  if (stockModel->ambilProduk(nid->namaProduk(), nid->qty())) {
+    sm->appendRow(row);
+    updateGrandTotal();
+    nid->accept();
+    nid->deleteLater();
+  } else {
+    qDeleteAll(row);
+  }
 }
 
 void PembuatNota::updateGrandTotal() {

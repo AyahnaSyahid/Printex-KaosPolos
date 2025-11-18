@@ -6,6 +6,7 @@
 namespace Ui {
 class PembuatNota;
 }
+class StockModel;
 class KaosPolosWindow;
 class QSqlQueryModel;
 class QStandardItemModel;
@@ -43,6 +44,7 @@ signals:
   DockKonsumen *dc;
   QStandardItemModel *sm;
   QSqlQueryModel *konsumenModel;
+  StockModel *stockModel;
 };
 
 #endif  // PEMBUATNOTA_H

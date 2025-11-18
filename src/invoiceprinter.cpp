@@ -5,6 +5,10 @@
 #include <QSqlQuery>
 #include <QPainter>
 
+#include <QImage>
+#include <QFont>
+#include <QSize>
+
 
 InvoicePrinter::InvoicePrinter(QObject *parent)
   : QObject(parent)
@@ -40,7 +44,11 @@ void InvoicePrinter::printInvoice(int invid)
     pembayaran << pmbq.record();
   }
   
+  QImage test(QSize(1000, 1000), QImage::Format_);
+  test.setDotsPerMeterX(11811);
+  test.setDotsPerMeterY(11811);
   
+  QPainter ptr(&test);
+  auto metrics = ptr.fontMetrics();
   
-  // view->show();
 }

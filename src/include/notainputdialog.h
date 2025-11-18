@@ -8,12 +8,13 @@ namespace Ui {
   class NotaInputDialog;
 }
 
+class StockModel;
 class NotaInputDialog : public QDialog
 {
   Q_OBJECT
 
 public:
-  NotaInputDialog(QWidget* parent=nullptr);
+  NotaInputDialog(StockModel* _s, QWidget* parent=nullptr);
   ~NotaInputDialog();
   
   QString namaProduk() const;
@@ -29,7 +30,7 @@ signals:
 
 private:
   Ui::NotaInputDialog *ui;
-  QSqlQueryModel *produkModel;
+  StockModel *stockModel;
 };
 
 #endif

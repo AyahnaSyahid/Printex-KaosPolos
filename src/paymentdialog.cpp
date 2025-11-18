@@ -24,9 +24,9 @@ PaymentDialog::PaymentDialog(int inv, Database* _d, QWidget* parent)
   ui->cashBox->setContentsMargins(0, 1, 0, 1);
   if (q.exec() && q.next()) {
     record = q.record();
-    ui->labelSisa->setText(locale().toString(record.value("unpaid").toInt()));
-    ui->labelTelahLunas->setText(locale().toString(record.value("paid").toInt()));
-    ui->labelTotal->setText(locale().toString(record.value("total_value").toInt()));
+    ui->labelSisa->setText(QString("Rp %L1").arg(record.value("unpaid").toInt()));
+    ui->labelTelahLunas->setText(QString("Rp %L1").arg(record.value("paid").toInt()));
+    ui->labelTotal->setText(QString("Rp %L1").arg(record.value("total_value").toInt()));
   } else {
     invoiceNotFound();
   }
@@ -36,7 +36,10 @@ PaymentDialog::PaymentDialog(int inv, Database* _d, QWidget* parent)
 PaymentDialog::~PaymentDialog() { delete ui; }
 
 void PaymentDialog::updateKembalian(int pay) {
-  if(pay < record.value("unpaid").toInt()) return;
+  if(pay < record.value("unpaid").toInt()) {
+    ui->labelKembalian->setText("Rp. 0");
+    return ;
+  }
   int np = record.value("unpaid").toInt() - pay;
   ui->labelKembalian->setText(QString("Rp. %L1").arg(np * -1));
 }
