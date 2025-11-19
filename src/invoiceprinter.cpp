@@ -44,11 +44,15 @@ void InvoicePrinter::printInvoice(int invid)
     pembayaran << pmbq.record();
   }
   
-  QImage test(QSize(1000, 1000), QImage::Format_);
-  test.setDotsPerMeterX(11811);
-  test.setDotsPerMeterY(11811);
+  QFont small("Courier New", 9);
+  QFont normal("Courier New", 12);
+  QFont bold("Courier New", 12);
   
-  QPainter ptr(&test);
-  auto metrics = ptr.fontMetrics();
+  bold.setWeight(700);
+  
+  
+  
+  int lineCharCount = 42;
+  
   
 }
