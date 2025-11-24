@@ -7,6 +7,7 @@
 #include "widgetinvoice.h"
 #include "dockproduk.h"
 #include "editorpenjualan.h"
+#include "editorpembayaran.h"
 
 #include <QMenu>
 #include <QAction>
@@ -253,6 +254,54 @@ void EditorInvoice::on_jualView_customContextMenuRequested(const QPoint &p) {
   }
 }
 
+void EditorInvoice::on_bayarView_customContextMenuRequested(const QPoint &p) {
+  auto wi = kpw->findChild<WidgetInvoice*>("widgetInvoice");
+  auto wp = kpw->findChild<WidgetPenjualan*>("widgetPenjualan");
+  QMenu bv;
+  auto editAct = bv.addAction("Edit");
+  auto delAct = bv.addAction("Hapus");
+  
+  auto ix = ui->bayarView->indexAt(p);
+  if(ix.isValid()) {
+    int id = ix.siblingAtColumn(0).data().toInt();
+    auto act = bv.exec(ui->bayarView->viewport()->mapToGlobal(p));
+    if(act == editAct) {
+      auto ep = new EditorPembayaran(id, kpw);
+      if(!ep->isValid()) {
+        QMessageBox::critical(kpw, "Kesalahan", QString("Pembayaran dengan ID : %1 tidak ditemukan").arg(id));
+        ep->deleteLater();
+        return ;
+      }
+      connect(ep, &EditorPembayaran::pembayaranUpdated, [this]() {
+        fetchRecords();
+        initModelRecords();
+      });
+      auto wi = kpw->findChild<WidgetInvoice*>("widgetInvoice");
+      auto wp = kpw->findChild<WidgetPenjualan*>("widgetPenjualan");
+      connect(ep, &EditorPembayaran::pembayaranUpdated, wi, &WidgetInvoice::refreshData);
+      connect(ep, &EditorPembayaran::pembayaranUpdated, wp, &WidgetPenjualan::refreshData);
+      connect(ep, &QDialog::accepted, ep, &QObject::deleteLater);
+      connect(ep, &QDialog::rejected, ep, &QObject::deleteLater);
+      ep->open();
+    } else if (act == delAct) {
+      AskBox asb("Konfirmasi", "Menghapus pembayaran mungkin akan mengubah status lunas invoice terkait, proses init tidak dapat dipulihkan.\nLanjutkan menghapus", kpw);
+      if(asb.exec() == QMessageBox::No) {
+        return ;
+      }
+      auto res = kpw->database()->removePayment(id);
+      if(!res.success) {
+        QMessageBox::information(this, "Gagal", res.errorMessage);
+        return ;
+      }
+      wi->refreshData();
+      wp->refreshData();
+      fetchRecords();
+      initModelRecords();
+    }
+  }
+}
+
+
 void EditorInvoice::hapusPenjualan(int pid) {
   auto wi = kpw->findChild<WidgetPenjualan*>("widgetPenjualan");
   if(wi->hapusPenjualan(pid)) {
@@ -263,7 +312,6 @@ void EditorInvoice::hapusPenjualan(int pid) {
     }
     return ;
   }
-  QMessageBox::information(this, "Tidak dapat menghapus", QString("Penjualan dengan ID %1, tidak berhasil dihapus").arg(pid));
 }
 
 void EditorInvoice::editPenjualan(int pjid)

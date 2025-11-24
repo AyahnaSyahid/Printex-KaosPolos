@@ -86,6 +86,8 @@ class Database
           int value,
           const QString& info,
           const QDateTime& pay_time = QDateTime::currentDateTime());
+    
+    const DatabaseResult removePayment(quint64 pyid);
 
     inline const bool& initialized() const { return _success; }
     

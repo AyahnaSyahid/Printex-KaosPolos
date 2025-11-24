@@ -103,8 +103,14 @@ void WidgetPenjualan::editPenjualan(int pid) {
 }
 
 bool WidgetPenjualan::hapusPenjualan(int pid) {
-  
   auto db = kpw->database();
+  
+  AskBox asb("Konfirmasi Penghapusan", QString("Operasi ini tidak dapat dibatalkan !\n"
+  "Apakah anda yakin akan menghapus penjualan dengan ID : %1").arg(pid), this);
+  if (asb.exec() == QMessageBox::No) {
+    return false;
+  }
+
   Transaction tr;
   
   QSqlQuery q;

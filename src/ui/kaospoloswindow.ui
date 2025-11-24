@@ -83,6 +83,12 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuTentang">
+    <property name="title">
+     <string>Tentang</string>
+    </property>
+   </widget>
+   <addaction name="menuTentang"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="navigationDock">

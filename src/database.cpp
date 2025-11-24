@@ -7,6 +7,7 @@
 #include <QMutexLocker>
 #include <QSqlDatabase>
 #include <QSqlError>
+#include <QSqlRecord>
 #include <QSqlQuery>
 #include <QStandardPaths>
 #include <qlogging.h>
@@ -901,6 +902,61 @@ const CreatePaymentResult Database::createPayment(quint64 invoice_id,
   }
   return res;
 }
+
+const DatabaseResult Database::removePayment(quint64 pyid) {
+  DatabaseResult res;
+  Transaction tr;
+  QSqlQuery pr, iu, qi; // paymentRemover, invoiceUpdater
+  qi.prepare(R"-(
+    SELECT Invoice.unpaid AS unpaid,
+           Invoice.paid AS paid,
+           Invoice.id AS invid,
+           value
+      FROM Pembayaran
+           INNER JOIN Invoice ON invoice_id = Invoice.id 
+     WHERE Pembayaran.id = :pyid
+  )-");
+  qi.bindValue(":pyid", pyid);
+  if(!qi.exec() || !qi.next()) {
+    if (qi.lastError().isValid()) {
+      res.errorMessage = qi.lastError().text();
+    } else {
+      res.errorMessage = "Tidak dapat menemukan Pembayaran";
+    }
+    qDebug() << "error on qi";
+    return res;
+  }
+  auto qirec = qi.record();
+  pr.prepare("DELETE FROM Pembayaran WHERE id = :pid");
+  pr.bindValue(":pid", pyid);
+  if(!pr.exec()) {
+    if (pr.lastError().isValid()) {
+      res.errorMessage = pr.lastError().text();
+    } else {
+      res.errorMessage = "Tidak dapat menemukan Pembayaran";
+    }
+    qDebug() << "error on pr";
+    return res;
+  }
+  iu.prepare("UPDATE Invoice SET (unpaid, paid, modified) = ( unpaid + :va, paid - :va, datetime('now', 'localtime') ) WHERE id = :invid");
+  iu.bindValue(":va", qirec.value("value"));
+  iu.bindValue(":invid", qirec.value("invid"));
+  if(!iu.exec()) {
+    if (iu.lastError().isValid()) {
+      res.errorMessage = iu.lastError().text();
+    } else {
+      res.errorMessage = "Tidak dapat menemukan Pembayaran";
+    }
+    qDebug() << "error on iu";
+    return res;
+  }
+  if(!tr.commit()) {
+    res.errorMessage = "Tidak dapat melakukan commit (COMMIT FAILURE)";
+  }
+  res.success = true;
+  return res;
+}
+
 
 bool Database::penjualanTelahLunas(int pid) const {
   QSqlQuery q;

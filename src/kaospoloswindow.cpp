@@ -34,7 +34,10 @@ KaosPolosWindow::KaosPolosWindow(Database *d, QWidget *p)
     connect(dk, &DockKonsumen::konsumenModified, wi, &WidgetInvoice::refreshData);
   }
   
-  auto invoicePrinter(this);
+  auto invoicePrinter = new InvoicePrinter(this);
+  auto aboutQt = new QAction("Qt Frameworks", this);
+  connect(aboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
+  ui->menuTentang->addAction(aboutQt);
 }
 
 KaosPolosWindow::~KaosPolosWindow() { delete ui; }
