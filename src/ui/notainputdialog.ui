@@ -36,13 +36,6 @@
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QToolButton" name="toolButton">
-       <property name="text">
-        <string>Baru</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item row="1" column="0">
