@@ -301,6 +301,10 @@ void EditorInvoice::on_bayarView_customContextMenuRequested(const QPoint &p) {
   }
 }
 
+void EditorInvoice::on_bayarView_doubleClicked(const QModelIndex& ix) {
+  auto pjid = ix.siblingAtColumn(0).data().toInt();
+  editPembayaran(pjid);
+}
 
 void EditorInvoice::hapusPenjualan(int pid) {
   auto wi = kpw->findChild<WidgetPenjualan*>("widgetPenjualan");
@@ -322,5 +326,26 @@ void EditorInvoice::editPenjualan(int pjid)
       [=]() { 
           fetchRecords();
           initModelRecords(); });
+  ep->open();
+}
+
+void EditorInvoice::editPembayaran(int pjid)
+{
+  auto ep = new EditorPembayaran(pjid, kpw);
+  if(!ep->isValid()) {
+    QMessageBox::critical(kpw, "Kesalahan", QString("Pembayaran dengan ID : %1 tidak ditemukan").arg(pjid));
+    ep->deleteLater();
+    return ;
+  }
+  connect(ep, &EditorPembayaran::pembayaranUpdated, [this]() {
+    fetchRecords();
+    initModelRecords();
+  });
+  auto wi = kpw->findChild<WidgetInvoice*>("widgetInvoice");
+  auto wp = kpw->findChild<WidgetPenjualan*>("widgetPenjualan");
+  connect(ep, &EditorPembayaran::pembayaranUpdated, wi, &WidgetInvoice::refreshData);
+  connect(ep, &EditorPembayaran::pembayaranUpdated, wp, &WidgetPenjualan::refreshData);
+  connect(ep, &QDialog::accepted, ep, &QObject::deleteLater);
+  connect(ep, &QDialog::rejected, ep, &QObject::deleteLater);
   ep->open();
 }

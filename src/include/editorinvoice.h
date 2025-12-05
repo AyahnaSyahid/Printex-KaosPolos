@@ -24,8 +24,10 @@ private slots:
   void fetchRecords();
   void initModelRecords(); // bisa digunakan untuk mereset
   void editPenjualan(int id);
+  void editPembayaran(int id);
   void on_jualView_doubleClicked(const QModelIndex& ix);
   void on_jualView_customContextMenuRequested(const QPoint &p);
+  void on_bayarView_doubleClicked(const QModelIndex& ix);
   void on_bayarView_customContextMenuRequested(const QPoint &p);
   void hapusPenjualan(int pid);
 
