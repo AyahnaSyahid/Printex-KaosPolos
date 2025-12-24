@@ -10,6 +10,14 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+if(NOT ENABLE_DUMMY_DATA)
+    set(ENABLE_DUMMY_DATA OFF CACHE BOOL "Initialize dummy data for testing" FORCE)
+endif()    
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the build type (Debug, Release, RelWithDebInfo, MinSizeRel)" FORCE)
+endif()
+
 find_package(Qt6 COMPONENTS Core Widgets Sql PrintSupport)
 
 add_executable(KaosPolos src/main.cpp
@@ -80,6 +88,10 @@ add_executable(KaosPolos src/main.cpp
 target_include_directories(KaosPolos PRIVATE src/include
                                              src/ui)
 target_link_libraries(KaosPolos PRIVATE Qt6::Widgets Qt6::Sql Qt6::PrintSupport)
+
+if(ENABLE_DUMMY_DATA)
+    target_compile_definitions(KaosPolos PRIVATE ENABLE_DUMMY_DATA)
+endif()
 
 # add_subdirectory(qttest)
 

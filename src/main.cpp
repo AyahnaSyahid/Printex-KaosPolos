@@ -24,7 +24,9 @@ int main(int argc, char **args) {
   app.setApplicationName("JualKaosDB");
   QLocale locale(QLocale::Indonesian, QLocale::Indonesia);
   QLocale::setDefault(locale);
+
   QDir appdir(app.applicationDirPath());
+
   appdir.mkpath("data");
   Database database(appdir.absoluteFilePath("data"));
   
@@ -32,7 +34,9 @@ int main(int argc, char **args) {
   
   KaosPolosWindow kp(&database);
   kp.show();
-  // QTimer::singleShot(5000, app.quit);
+
+#ifdef ENABLE_DUMMY_DATA
   app.connect(&app, &QApplication::aboutToQuit, cleanUp);
+#endif
   return app.exec();
 }

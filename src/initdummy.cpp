@@ -9,6 +9,7 @@ struct pinfo {
 
 
 void initDummyData(Database* db) {
+#ifdef ENABLE_DUMMY_DATA
   QList<pinfo> store;
   QList<QString> knames;
   for (int i=0; i<30; ++i) {
@@ -58,4 +59,5 @@ void initDummyData(Database* db) {
     qDebug() << ap.errorMessage;
     }
   }
+#endif
 };
