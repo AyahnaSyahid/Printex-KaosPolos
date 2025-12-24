@@ -2,16 +2,16 @@
 #include "ui/ui_produkinfo.h"
 
 #include "database.h"
+#include <QString>
 #include <QSqlQuery>
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QLineEdit>
 
 ProdukInfo::ProdukInfo(const QString& _nama, Database *_d, QWidget *parent)
-    : ui(new Ui::ProdukInfo), db(_d), QDialog(parent)
+    : ui(new Ui::ProdukInfo), cnama(_nama), db(_d), QDialog(parent)
 {
   ui->setupUi(this);
-  cnama = _nama;
   QSqlQuery q;
   q.prepare("SELECT * FROM Produk WHERE nama = ?");
   q.addBindValue(_nama);

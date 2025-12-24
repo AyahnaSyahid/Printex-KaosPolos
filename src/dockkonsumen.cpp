@@ -109,8 +109,9 @@ void DockKonsumen::editKonsumenHandler() {
 void DockKonsumen::on_konsumenView_customContextMenuRequested(const QPoint& p) {
   QMenu ctx(this);
   auto ix = konsumenView->indexAt(p);
+  QString cn;
   if (ix.isValid()) {
-    QString cn = ix.siblingAtColumn(1).data(Qt::DisplayRole).toString();
+    cn = ix.siblingAtColumn(1).data(Qt::DisplayRole).toString();
     auto edt = ctx.addAction("Atur");
     connect(edt, &QAction::triggered, [this, &cn]() { editKonsumen(cn); });
     ctx.addSeparator();

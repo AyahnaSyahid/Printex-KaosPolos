@@ -13,7 +13,7 @@ class ProdukInfo : public QDialog
   Q_OBJECT
 
 public:
-  explicit ProdukInfo(const QString& pname, Database *, QWidget * = nullptr);
+  explicit ProdukInfo(const QString &pname, Database *, QWidget* = nullptr);
   ~ProdukInfo();
   
   bool isModified() const;

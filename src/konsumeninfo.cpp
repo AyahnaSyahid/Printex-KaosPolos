@@ -44,9 +44,13 @@ void KonsumenInfo::on_phoneEditButton_clicked(){
 }
 void KonsumenInfo::on_namaEditButton_clicked(){
   u_nama = QInputDialog::getText(this, "Ubah Nama", "Nama Konsumen", QLineEdit::Normal, m_nama);
-  if (u_nama == m_nama) u_nama = "";
-  else ui->labelNama->setText(u_nama);
+  if (u_nama == m_nama) {
+    u_nama = "";
+    return;
+  }
+  ui->labelNama->setText(u_nama);
 }
+
 void KonsumenInfo::on_infoEditButton_clicked(){
   u_info = QInputDialog::getMultiLineText(this, "Ubah Informasi (Keterangan)", "Info Konsumen", m_info);
   if (u_info == m_info) u_info = "";

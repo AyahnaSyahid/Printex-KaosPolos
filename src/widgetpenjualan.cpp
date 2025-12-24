@@ -36,6 +36,7 @@ WidgetPenjualan::WidgetPenjualan(QWidget *parent)
     INNER JOIN Produk ON Penjualan.produk_id = Produk.id 
     INNER JOIN Invoice ON Penjualan.invoice_id = Invoice.id
     WHERE date(Penjualan.sale_time) = date('now', 'localtime')
+    ORDER BY Penjualan.id DESC
   )-");
   auto sortModel = new ModelAdapter(this);
   sortModel->setObjectName("sortModel");

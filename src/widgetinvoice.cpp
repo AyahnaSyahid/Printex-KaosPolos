@@ -19,6 +19,10 @@ WidgetInvoice::WidgetInvoice(QWidget *parent)
   auto model = new UnpaidModel(this);
   model->setObjectName("unpaidModel");
   ui->unpaidInvoiceView->setModel(model);
+  
+  // untuk sementara button pencarian di hide aja
+  ui->cariButton->hide();
+  
 }
 
 WidgetInvoice::~WidgetInvoice() { delete ui; }
@@ -82,7 +86,8 @@ WidgetInvoice::UnpaidModel::UnpaidModel(QObject *parent)
     FROM Invoice
          INNER JOIN
          Konsumen ON Invoice.konsumen_id = Konsumen.id
-   WHERE Invoice.unpaid > 0;
+   WHERE Invoice.unpaid > 0
+   ORDER BY Invoice.id DESC;
   )-");
   setSourceModel(qm);
 }

@@ -55,9 +55,10 @@ DockProduk::~DockProduk() {}
 
 void DockProduk::on_produkView_customContextMenuRequested(const QPoint &p) {
   QMenu menu;
+  QString pname;
   auto contextIndex = produkView->indexAt(p);
   if (contextIndex.isValid()) {
-    QString pname = contextIndex.siblingAtColumn(1).data().toString();
+    pname = contextIndex.siblingAtColumn(1).data().toString();
     auto showInfo = menu.addAction("Atur");
     connect(showInfo, &QAction::triggered,
             [this, &pname]() { displayProduk(pname); });
