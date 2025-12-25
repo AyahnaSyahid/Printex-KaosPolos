@@ -5,6 +5,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QPainter>
+#include <QFileDialog>
 
 #include <QImage>
 #include <QFont>
@@ -15,18 +16,39 @@
 #include <QPrinter>
 #include <QPrinterInfo>
 #include <QPainter>
+#include <QSettings>
+#include <QPdfWriter>
+#include <QTemporaryFile>
+#include <QDir>
+#include <QAction>
+#include <QMessageBox>
 
 
 InvoicePrinter::InvoicePrinter(QObject *parent)
-  : QObject(parent)
+  : m_pdfOutputDir(), setDefaultInvoiceDirAction(new QAction("Atur penyimpanan Invoice", this)), QObject(parent)
 {
   setObjectName("invoicePrinter");
+  QSettings s;
+  m_pdfOutputDir = s.value("InvoicePrinter/defaultSaveDir", "").toString();
+  setDefaultInvoiceDirAction->setObjectName("setDefaultInvoiceDirAction");
+  connect(setDefaultInvoiceDirAction, &QAction::triggered, this, &InvoicePrinter::setDefaultInvoiceDir);
 }
 
-InvoicePrinter::~InvoicePrinter() {}
+InvoicePrinter::~InvoicePrinter() {
+  setDefaultInvoiceDirAction->deleteLater();
+}
 
 void InvoicePrinter::printInvoice(int invid)
 {
+  if(m_pdfOutputDir.isEmpty()) {
+    // ask for save
+    m_pdfOutputDir = QFileDialog::getExistingDirectory(nullptr, "Tentukan folder penyimpanan", "");
+    if(m_pdfOutputDir.isEmpty()) {
+      QMessageBox::warning(nullptr, "Tidak dapat melanjutkan", "Anda harus menentukan direktori untuk menyimpan Invoice");
+      return ;
+    }
+  }
+  
   Transaction tr;
   QSqlQuery invq, pnjq, pmbq;
   invq.prepare("SELECT Invoice.id, "
@@ -86,26 +108,33 @@ void InvoicePrinter::printInvoice(int invid)
                paymentLines + resLines;
                // thanksLine;
   
-  QPrinter prt(QPrinterInfo::printerInfo("Adobe PDF"), QPrinter::HighResolution);
-  if (!prt.isValid()) {
-    qDebug() << "Printer not ready";
-  }
+  // QPrinter prt(QPrinterInfo::printerInfo("Adobe PDF"), QPrinter::HighResolution);
+  // if (!prt.isValid()) {
+    // qDebug() << "Printer not ready";
+  // }
   
-  prt.setOutputFileName("test.pdf");
+  QTemporaryFile tempFile(QString("%1/XXXXXX.pdf").arg(m_pdfOutputDir));
+  tempFile.setAutoRemove(false);
+  tempFile.open();
+  qDebug() << tempFile.fileName();
+  QPdfWriter prt(&tempFile);
   QPageSize pageSize(QSize(227, sumall * 12), "Rolls", QPageSize::ExactMatch);
   prt.setPageSize(pageSize);
   prt.setResolution(300);
-  prt.setFontEmbeddingEnabled(true);
-  prt.setFullPage(true);
+  // prt.setFontEmbeddingEnabled(true);
+  auto ply = prt.pageLayout();
+  ply.setMode(QPageLayout::FullPageMode);
+  prt.setPageLayout(ply);
   
   QPainter p(&prt);
   p.save();
   p.setFont(normal);
   auto lineSpacing = p.fontMetrics().lineSpacing();
-  auto pr = prt.pageRect(QPrinter::DevicePixel);
+  auto pr = prt.pageLayout().fullRectPixels(300);
   auto imRect = QRect(0, 0, pr.width(), lineSpacing * 6); 
-  QImage logo("coca-cola-logo.jpg");
-  logo = logo.scaled(imRect.size(), Qt::KeepAspectRatio);
+  QImage logo = QImage("LOGOPRINTEX.png").convertToFormat(QImage::Format_Grayscale16);
+  logo = logo.scaled(imRect.size() * 0.8, Qt::KeepAspectRatio);
+  
   auto logoRect = logo.rect();
   logoRect.moveCenter(imRect.center());
   p.drawImage(logoRect, logo);
@@ -221,4 +250,18 @@ void InvoicePrinter::printInvoice(int invid)
   
   p.restore();
   p.end();
+  tempFile.rename(QString("%1\\INV-%2.pdf").arg(m_pdfOutputDir).arg(invid, 8, 10, QChar('0')));
+}
+
+void InvoicePrinter::setDefaultInvoiceDir() {
+  QString s = QFileDialog::getExistingDirectory( 
+    nullptr, 
+    "Pilih direktori untuk menyimpan file Invoice", 
+    m_pdfOutputDir);
+  if(!s.isEmpty()) {
+    m_pdfOutputDir = QDir::toNativeSeparators(s);
+    QSettings st;
+    st.setValue("InvoicePrinter/defaultSaveDir", m_pdfOutputDir);
+    st.sync();
+  }
 }

@@ -39,6 +39,11 @@ KaosPolosWindow::KaosPolosWindow(Database *d, QWidget *p)
   auto aboutQt = new QAction("Qt Frameworks", this);
   connect(aboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
   ui->menuTentang->addAction(aboutQt);
+  
+  auto mbar = menuBar();
+  auto pengaturan = mbar->addMenu("Pengaturan");
+  auto p_inv = pengaturan->addMenu("Invoice");
+  p_inv->addAction(invoicePrinter->findChild<QAction*>("setDefaultInvoiceDirAction"));
 }
 
 KaosPolosWindow::~KaosPolosWindow() { delete ui; }

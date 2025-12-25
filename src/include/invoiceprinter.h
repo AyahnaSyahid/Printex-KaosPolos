@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+class QAction;
 class InvoicePrinter : public QObject
 {
   Q_OBJECT
@@ -18,6 +19,13 @@ signals:
   void printerBegin(const QString& invId);
   void printerEnd();
   void printerFailed(const QString& message);
+
+private slots:
+  void setDefaultInvoiceDir();
+
+private:
+  QString m_pdfOutputDir;
+  QAction *setDefaultInvoiceDirAction;
 };
 
 #endif
