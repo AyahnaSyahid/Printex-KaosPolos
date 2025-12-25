@@ -20,8 +20,8 @@ void initDummyData(Database *);
 
 int main(int argc, char **args) {
   QApplication app(argc, args);
-  app.setOrganizationName("Custom Soft");
-  app.setApplicationName("JualKaosDB");
+  app.setOrganizationName("BlackCircle");
+  app.setApplicationName("AdminJualKaos");
   QLocale locale(QLocale::Indonesian, QLocale::Indonesia);
   QLocale::setDefault(locale);
 

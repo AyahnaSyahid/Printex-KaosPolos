@@ -35,6 +35,7 @@ KaosPolosWindow::KaosPolosWindow(Database *d, QWidget *p)
   }
   
   auto invoicePrinter = new InvoicePrinter(this);
+  invoicePrinter->setObjectName("invoicePrinter");
   auto aboutQt = new QAction("Qt Frameworks", this);
   connect(aboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
   ui->menuTentang->addAction(aboutQt);

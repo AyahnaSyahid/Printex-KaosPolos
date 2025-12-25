@@ -90,6 +90,7 @@ void InvoicePrinter::printInvoice(int invid)
   if (!prt.isValid()) {
     qDebug() << "Printer not ready";
   }
+  
   prt.setOutputFileName("test.pdf");
   QPageSize pageSize(QSize(227, sumall * 12), "Rolls", QPageSize::ExactMatch);
   prt.setPageSize(pageSize);
