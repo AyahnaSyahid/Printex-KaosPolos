@@ -83,6 +83,8 @@ add_executable(KaosPolos src/main.cpp
                          src/ui/editorpembayaran.ui
                          src/include/editorpembayaran.h
                          src/editorpembayaran.cpp
+                         src/include/invoicetable.h
+                         src/invoicetable.cpp
                          )
 
 target_include_directories(KaosPolos PRIVATE src/include

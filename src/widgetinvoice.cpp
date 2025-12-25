@@ -1,4 +1,5 @@
 #include "widgetinvoice.h"
+#include "invoicetable.h"
 #include "ui/ui_widgetinvoice.h"
 #include "database.h"
 #include "kaospoloswindow.h"
@@ -21,8 +22,7 @@ WidgetInvoice::WidgetInvoice(QWidget *parent)
   ui->unpaidInvoiceView->setModel(model);
   
   // untuk sementara button pencarian di hide aja
-  ui->cariButton->hide();
-  
+  // ui->cariButton->hide();
 }
 
 WidgetInvoice::~WidgetInvoice() { delete ui; }
@@ -129,5 +129,11 @@ void WidgetInvoice::editInvoice(int i) {
 }
 
 void WidgetInvoice::on_cariButton_clicked() {
-  
+  auto d = new QDialog(this);
+  auto h = new QHBoxLayout();
+  d->setLayout(h);
+  auto it = new InvoiceTable(d);
+  h->addWidget(it);
+  d->setAttribute(Qt::WA_DeleteOnClose);
+  d->open();
 }
