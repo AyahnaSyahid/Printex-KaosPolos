@@ -9,6 +9,7 @@ class InvoiceTable : public QTableView
   Q_OBJECT
 
 public:
+  class ItemDelegate;
   InvoiceTable(QWidget* = nullptr);
   ~InvoiceTable();
 

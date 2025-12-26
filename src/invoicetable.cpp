@@ -1,19 +1,11 @@
 #include "invoicetable.h"
 #include <QSqlQuery>
 #include <QSqlQueryModel>
-
+#include <QLocale>
 #include <QSortFilterProxyModel>
+#include <QHeaderView>
 
-namespace InvoiceTableNS {
-  class SortFilterProxyModel : public QSortFilterProxyModel {
-    public:
-      SortFilterProxyModel(QObject* parent=nullptr) : QSortFilterProxyModel(parent) {}
-      ~SortFilterProxyModel() {}
-      QVariant data(const QModelIndex& ix, int role=Qt::DisplayRole) const;
-  };
-}
 
-using InvoiceTableNS;
 
 InvoiceTable::InvoiceTable(QWidget* parent) : QTableView(parent) 
 {
@@ -23,7 +15,7 @@ InvoiceTable::InvoiceTable(QWidget* parent) : QTableView(parent)
   sm->setObjectName("sortFilterModel");
   
   qm->setQuery(R"-(
-  SELECT PRINTF('%08d', Invoice.id) AS [Invoice ID],
+  SELECT Invoice.id AS [Invoice ID],
          Konsumen.nama AS Konsumen,
          Invoice.total_value AS Total,
          Invoice.unpaid AS Sisa,
@@ -38,6 +30,14 @@ InvoiceTable::InvoiceTable(QWidget* parent) : QTableView(parent)
   sm->setSourceModel(qm);
   setModel(sm);
   setMinimumSize(600, 300);
+  
+  verticalHeader()->setMinimumSectionSize(15);
+  verticalHeader()->setDefaultSectionSize(18);
+  horizontalHeader()->setStretchLastSection(true);
+  
+  setSelectionMode(QTableView::SingleSelection);
+  setSelectionBehavior(QTableView::SelectRows);
+  setSortingEnabled(true);
 }
 
 InvoiceTable::~InvoiceTable() {}
@@ -47,10 +47,4 @@ void InvoiceTable::update()
   auto qm = findChild<QSqlQueryModel*>("queryModel");
   auto lq = qm->query().lastQuery();
   qm->setQuery(lq);
-}
-
-QVariant SortFilterProxyModel::data(const QModelIndex& ix, int role) 
-{
-  if(!ix.isValid()) return QVariant();
-  
 }
