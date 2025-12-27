@@ -2,17 +2,34 @@
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 #include <QLocale>
-#include <QSortFilterProxyModel>
+#include <QStyledItemDelegate>
 #include <QHeaderView>
 
+class InvoiceTable::NumberDelegate : public QStyledItemDelegate
+{
+  public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+    QString displayText(const QVariant&, const QLocale&) const override;
+    void initStyleOption(QStyleOptionViewItem*, const QModelIndex&) const override;
+};
 
+class InvoiceTable::InvIDDelegate : public QStyledItemDelegate
+{
+  public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+    
+    QString displayText(const QVariant& val, const QLocale&) const override
+    { return QString("%1").arg(val.toInt(), 8, 10, QChar('0')); }
+    
+    void initStyleOption(QStyleOptionViewItem* option, const QModelIndex& index) const override
+    { QStyledItemDelegate::initStyleOption(option, index); 
+      option->displayAlignment = Qt::AlignCenter; }
+};
 
 InvoiceTable::InvoiceTable(QWidget* parent) : QTableView(parent) 
 {
   auto qm = new QSqlQueryModel(this);
   qm->setObjectName("queryModel");
-  auto sm = new SortFilterProxyModel(this);
-  sm->setObjectName("sortFilterModel");
   
   qm->setQuery(R"-(
   SELECT Invoice.id AS [Invoice ID],
@@ -27,8 +44,8 @@ InvoiceTable::InvoiceTable(QWidget* parent) : QTableView(parent)
    ORDER BY Invoice.id DESC;
   )-");
   
-  sm->setSourceModel(qm);
-  setModel(sm);
+  
+  setModel(qm);
   setMinimumSize(600, 300);
   
   verticalHeader()->setMinimumSectionSize(15);
@@ -38,6 +55,13 @@ InvoiceTable::InvoiceTable(QWidget* parent) : QTableView(parent)
   setSelectionMode(QTableView::SingleSelection);
   setSelectionBehavior(QTableView::SelectRows);
   setSortingEnabled(true);
+  
+  auto dlg = new NumberDelegate(this);
+  setItemDelegateForColumn(2,dlg);
+  setItemDelegateForColumn(3,dlg);
+  setItemDelegateForColumn(4,dlg);
+  auto idel = new InvIDDelegate(this);
+  setItemDelegateForColumn(0, idel);
 }
 
 InvoiceTable::~InvoiceTable() {}
@@ -47,4 +71,27 @@ void InvoiceTable::update()
   auto qm = findChild<QSqlQueryModel*>("queryModel");
   auto lq = qm->query().lastQuery();
   qm->setQuery(lq);
+}
+
+QString InvoiceTable::NumberDelegate::displayText(const QVariant& val, const QLocale& loc) const
+{
+  bool ok = false;
+  int vint = val.toInt(&ok);
+  if(ok) return QString("%L1").arg(vint);
+  return val.toString();
+}
+
+void InvoiceTable::NumberDelegate::initStyleOption(QStyleOptionViewItem* opt, const QModelIndex& im) const
+{
+  QStyledItemDelegate::initStyleOption(opt, im);
+  switch(im.column()) {
+    case 2:
+    case 3:
+      opt->displayAlignment = Qt::AlignRight | Qt::AlignVCenter;
+      break;
+    case 0:
+    case 4:
+      opt->displayAlignment = Qt::AlignHCenter | Qt::AlignVCenter;
+      break;
+  }
 }

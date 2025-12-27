@@ -9,13 +9,13 @@ class InvoiceTable : public QTableView
   Q_OBJECT
 
 public:
-  class ItemDelegate;
+  class NumberDelegate;
+  class InvIDDelegate;
   InvoiceTable(QWidget* = nullptr);
   ~InvoiceTable();
 
 public slots:
   void update();
-
 };
 
 #endif
