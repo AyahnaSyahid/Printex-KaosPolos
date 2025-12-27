@@ -4,10 +4,10 @@
 #include <QTableView>
 
 class QAbstractItemModel;
+
 class InvoiceTable : public QTableView
 {
   Q_OBJECT
-
 public:
   class NumberDelegate;
   class InvIDDelegate;
@@ -16,6 +16,14 @@ public:
 
 public slots:
   void update();
+
+private slots:
+  void contextMenuEvent(QContextMenuEvent*) override;
+
+signals:
+  // connect(print, &QAction::triggered, [this, &iid](){ kpw->findChild<InvoicePrinter*>("invoicePrinter")->printInvoice(iid);});
+  void printRequest(int iid);
+  void editRequest(int iid);
 };
 
 #endif

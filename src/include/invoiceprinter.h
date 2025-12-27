@@ -26,6 +26,7 @@ private slots:
 private:
   QString m_pdfOutputDir;
   QAction *setDefaultInvoiceDirAction;
+  QAction *editCompanyInfoAction;
 };
 
 #endif

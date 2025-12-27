@@ -20,9 +20,6 @@ WidgetInvoice::WidgetInvoice(QWidget *parent)
   auto model = new UnpaidModel(this);
   model->setObjectName("unpaidModel");
   ui->unpaidInvoiceView->setModel(model);
-  
-  // untuk sementara button pencarian di hide aja
-  // ui->cariButton->hide();
 }
 
 WidgetInvoice::~WidgetInvoice() { delete ui; }
@@ -134,6 +131,9 @@ void WidgetInvoice::on_cariButton_clicked() {
   d->setLayout(h);
   auto it = new InvoiceTable(d);
   h->addWidget(it);
+  connect(it, &InvoiceTable::editRequest, this, &WidgetInvoice::editInvoice);
+  connect(it, &InvoiceTable::printRequest, kpw->findChild<InvoicePrinter*>("invoicePrinter"), &InvoicePrinter::printInvoice);
+  connect(ui->unpaidInvoiceView->model(), &QAbstractItemModel::modelReset, it, &InvoiceTable::update);
   d->setAttribute(Qt::WA_DeleteOnClose);
   d->open();
 }

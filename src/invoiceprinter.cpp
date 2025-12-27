@@ -25,7 +25,10 @@
 
 
 InvoicePrinter::InvoicePrinter(QObject *parent)
-  : m_pdfOutputDir(), setDefaultInvoiceDirAction(new QAction("Atur penyimpanan Invoice", this)), QObject(parent)
+  : m_pdfOutputDir(), 
+    setDefaultInvoiceDirAction(new QAction("Atur penyimpanan Invoice", this)), 
+    editCompanyInfoAction(new QAction("Edit Info Perusahaan")),
+    QObject(parent)
 {
   setObjectName("invoicePrinter");
   QSettings s;
@@ -233,13 +236,13 @@ void InvoicePrinter::printInvoice(int invid)
   p.drawText(crl, 0, QString("*").repeated(42), &cru);
   crl.moveTop(crl.bottom());
   
-  p.drawText(crl, Qt::AlignCenter, "Terimakasih", &cru);
+  p.drawText(crl, Qt::AlignCenter, "Terimakasih atas kunjungannya!", &cru);
   crl.moveTop(crl.bottom());
   
   p.drawText(crl, Qt::AlignCenter, "PRINTEX Digital Printing", &cru);
   crl.moveTop(crl.bottom());
   
-  p.drawText(crl, Qt::AlignCenter, "Alamat Printex", &cru);
+  p.drawText(crl, Qt::AlignCenter, "Jl. Kapten Naseh No.13, Tasikmalaya 46134", &cru);
   crl.moveTop(crl.bottom());
   
   p.drawText(crl, Qt::AlignCenter, QString("WA : 0882836653672"), &cru);
@@ -250,7 +253,10 @@ void InvoicePrinter::printInvoice(int invid)
   
   p.restore();
   p.end();
-  tempFile.rename(QString("%1\\INV-%2.pdf").arg(m_pdfOutputDir).arg(invid, 8, 10, QChar('0')));
+  tempFile.rename(QString("%1\\INV-%2 %3.pdf")
+    .arg(m_pdfOutputDir)
+    .arg(invid, 8, 10, QChar('0'))
+    .arg(QDateTime::currentDateTime().toString("yyMMddhhmmss")));
 }
 
 void InvoicePrinter::setDefaultInvoiceDir() {
