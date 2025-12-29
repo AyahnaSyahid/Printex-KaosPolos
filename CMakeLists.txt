@@ -20,7 +20,7 @@ endif()
 
 find_package(Qt6 COMPONENTS Core Widgets Sql PrintSupport)
 
-add_executable(KaosPolos src/main.cpp
+add_executable(KaosPolos WIN32 src/main.cpp
                          src/database.cpp
                          src/include/database.h
                          src/res/main_res.qrc
